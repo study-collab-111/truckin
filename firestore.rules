@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default catch-all: deny all reads and writes
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Bookings collection rules
+    match /bookings/{bookingId} {
+      allow read: if true; // Public access for demo flow
+      
+      allow create: if isValidId(bookingId) 
+        && isValidBooking(incoming())
+        && incoming().status == 'MENUNGGU'; // Must start in MENUNGGU state
+
+      allow update: if isValidId(bookingId)
+        && isValidBooking(incoming())
+        && (
+          // Action 1: Driver accepts cargo (status change to DALAM PERJALANAN)
+          (incoming().status == 'DALAM PERJALANAN' && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'currentLocation']))
+          ||
+          // Action 2: Driver updates current location description (text-based telemetry)
+          (incoming().diff(existing()).affectedKeys().hasOnly(['currentLocation']))
+          ||
+          // Action 3: Driver finishes delivery (status change to SELESAI)
+          (incoming().status == 'SELESAI' && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'currentLocation']))
+          ||
+          // Action 4: Admin status/state override
+          (incoming().diff(existing()).affectedKeys().hasAny(['status', 'currentLocation', 'pickup', 'destination', 'cargoDetail', 'weight', 'priority', 'truckType', 'date', 'amount']))
+        );
+
+      allow delete: if true; // Allowed for canceling booking or admin overrides
+    }
+
+    // Accounts collection rules
+    match /accounts/{accountId} {
+      allow read, write: if true; // Public access for unified dynamic registration & login system
+    }
+
+    // Helper functions
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string 
+        && id.size() <= 128 
+        && id.matches('^[#a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidBooking(booking) {
+      return booking.keys().hasAll(['pickup', 'destination', 'cargoDetail', 'weight', 'priority', 'truckType', 'date', 'amount', 'status'])
+        && booking.pickup is string && booking.pickup.size() <= 100
+        && booking.destination is string && booking.destination.size() <= 100
+        && booking.cargoDetail is string && booking.cargoDetail.size() <= 200
+        && (booking.weight is int || booking.weight is float) && booking.weight >= 1 && booking.weight <= 50
+        && booking.priority in ['STANDAR', 'EKSPRES']
+        && booking.truckType in ['TRAILER', 'BAK TERBUKA', 'TRUK BOKS', 'TRUK PENDINGIN']
+        && booking.date is string && booking.date.size() <= 50
+        && booking.amount is string && booking.amount.size() <= 50
+        && booking.status in ['MENUNGGU', 'DALAM PERJALANAN', 'SELESAI']
+        && (!booking.keys().hasAny(['currentLocation']) || (booking.currentLocation is string && booking.currentLocation.size() <= 500));
+    }
+  }
+}

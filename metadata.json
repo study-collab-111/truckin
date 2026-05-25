@@ -1,0 +1,6 @@
+{
+  "name": "TrukIn",
+  "description": "Platform Logistik Digital & Pemesanan Truk Terintegrasi",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

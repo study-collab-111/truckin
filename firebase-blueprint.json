@@ -1,0 +1,76 @@
+{
+  "entities": {
+    "Booking": {
+      "title": "Booking",
+      "description": "Logistics booking order details",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique order ID"
+        },
+        "pickup": {
+          "type": "string",
+          "description": "Address/hub where cargo is picked up"
+        },
+        "destination": {
+          "type": "string",
+          "description": "Destination address/hub"
+        },
+        "cargoDetail": {
+          "type": "string",
+          "description": "Specific detail name of cargos"
+        },
+        "weight": {
+          "type": "number",
+          "description": "Weighted tonnage of logs"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["STANDAR", "EKSPRES"]
+        },
+        "truckType": {
+          "type": "string",
+          "enum": ["TRAILER", "BAK TERBUKA", "TRUK BOKS", "TRUK PENDINGIN"]
+        },
+        "date": {
+          "type": "string",
+          "description": "Formatted scheduled shipment date"
+        },
+        "amount": {
+          "type": "string",
+          "description": "Formatted flat currency pricing amount"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["MENUNGGU", "DALAM PERJALANAN", "SELESAI"]
+        },
+        "currentLocation": {
+          "type": "string",
+          "description": "Real-time location description submitted by drivers"
+        }
+      },
+      "required": [
+        "pickup",
+        "destination",
+        "cargoDetail",
+        "weight",
+        "priority",
+        "truckType",
+        "date",
+        "amount",
+        "status"
+      ]
+    }
+  },
+  "firestore": {
+    "bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Collection of all logistics bookings available or active"
+    },
+    "accounts/{accountId}": {
+      "schema": "Account",
+      "description": "Unified dynamic credentials & account details for users, drivers and admin"
+    }
+  }
+}
