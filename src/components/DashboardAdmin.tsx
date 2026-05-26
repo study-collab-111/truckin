@@ -19,6 +19,8 @@ import {
   Plus
 } from 'lucide-react';
 import { Booking, SystemAlert, AppView, Account } from '../types';
+import { Language, trans } from '../lib/translations';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface DashboardAdminProps {
   bookings: Booking[];
@@ -26,6 +28,8 @@ interface DashboardAdminProps {
   onUpdateBookingStatus: (id: string, nextStatus: Booking['status']) => void;
   onDeleteBooking: (id: string) => void;
   onNavigate: (view: AppView) => void;
+  lang: Language;
+  onSetLang: (lang: Language) => void;
 }
 
 export default function DashboardAdmin({ 
@@ -33,7 +37,9 @@ export default function DashboardAdmin({
   currentUser,
   onUpdateBookingStatus, 
   onDeleteBooking,
-  onNavigate 
+  onNavigate,
+  lang,
+  onSetLang
 }: DashboardAdminProps) {
   
   // Custom alerts queue in Command Room 
@@ -73,7 +79,7 @@ export default function DashboardAdmin({
       type: 'critical',
       title: newNoticeTitle.toUpperCase(),
       message: newNoticeMsg,
-      time: 'BARU SAJA'
+      time: lang === 'id' ? 'BARU SAJA' : 'JUST NOW'
     };
 
     setAlerts([newAlert, ...alerts]);
@@ -125,13 +131,14 @@ export default function DashboardAdmin({
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
+            <LanguageSwitcher currentLang={lang} onSetLang={onSetLang} />
             <button 
               onClick={() => onNavigate('landing')}
-              className="flex items-center gap-1.5 text-xs font-mono tracking-wider text-white/60 hover:text-red-400 uppercase font-black transition-all cursor-pointer"
+              className="flex items-center gap-1.5 text-xs font-mono tracking-wider text-white/60 hover:text-red-400 uppercase font-black transition-all cursor-pointer bg-transparent border-0"
             >
               <LogOut className="w-4 h-4 text-red-500" />
-              Keluar Konsol
+              {lang === 'id' ? 'KELUAR KONSOL' : 'EXIT PANEL'}
             </button>
           </div>
         </div>
@@ -143,25 +150,25 @@ export default function DashboardAdmin({
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           
           <div className="bg-[#121212] border border-white/10 p-6 rounded-none relative overflow-hidden">
-            <div className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em] mb-2">Platform Turnover</div>
+            <div className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em] mb-2">{lang === 'id' ? 'Omzet Platform' : 'Platform Corporate Turnover'}</div>
             <div className="text-2xl font-black font-mono text-[#C5FF00] whitespace-nowrap">{stats.transitIncome}</div>
             <div className="w-1 h-full bg-[#C5FF00] absolute left-0 top-0"></div>
           </div>
 
           <div className="bg-[#121212] border border-white/10 p-6 rounded-none relative overflow-hidden">
-            <div className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em] mb-2">Total Logistics Load</div>
-            <div className="text-3xl font-black font-mono text-white">{stats.totalJobs} <span className="text-xs font-mono text-white/40 font-normal">Jobs</span></div>
+            <div className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em] mb-2">{lang === 'id' ? 'Total Kontrak Logistik' : 'Total Logistics Load'}</div>
+            <div className="text-3xl font-black font-mono text-white">{stats.totalJobs} <span className="text-xs font-mono text-white/40 font-normal">{lang === 'id' ? 'Kontrak' : 'Jobs'}</span></div>
             <div className="w-1 h-full bg-white/20 absolute left-0 top-0"></div>
           </div>
 
           <div className="bg-[#121212] border border-white/10 p-6 rounded-none relative overflow-hidden">
-            <div className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em] mb-2">Active Fleet</div>
+            <div className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em] mb-2">{lang === 'id' ? 'Armada Jalan Aktif' : 'Active Fleet En-Route'}</div>
             <div className="text-3xl font-black font-mono text-indigo-400">{stats.activeJobs} <span className="text-xs font-mono text-white/40 font-normal">Trks</span></div>
             <div className="w-1 h-full bg-indigo-500 absolute left-0 top-0"></div>
           </div>
 
           <div className="bg-[#121212] border border-white/10 p-6 rounded-none relative overflow-hidden">
-            <div className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em] mb-2">Pending Driver Approvals</div>
+            <div className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em] mb-2">{lang === 'id' ? 'Persetujuan Driver Antre' : 'Pending Driver Approvals'}</div>
             <div className="text-3xl font-black font-mono text-rose-500">{stats.pendingVerificationsCount} <span className="text-xs font-mono text-white/40 font-normal">Hold</span></div>
             <div className="w-1 h-full bg-rose-500 absolute left-0 top-0"></div>
           </div>
@@ -178,8 +185,8 @@ export default function DashboardAdmin({
             <div className="bg-[#121212] p-6 border border-white/10 rounded-none">
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h4 className="font-black text-sm uppercase text-white tracking-tight">LOG AKTIVITAS OPERASIONAL_</h4>
-                  <p className="text-[10px] font-mono text-white/50">Audit jejak pos logistik armada real-time</p>
+                  <h4 className="font-black text-sm uppercase text-white tracking-tight">{lang === 'id' ? 'LOG AKTIVITAS OPERASIONAL_' : 'OPERATIONAL LOG STREAM_'}</h4>
+                  <p className="text-[10px] font-mono text-white/50">{lang === 'id' ? 'Audit jejak pos logistik armada real-time' : 'Real-time logistics audit footprints'}</p>
                 </div>
                 <div className="flex h-2.5 w-2.5 relative">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C5FF00] opacity-75"></span>
@@ -189,7 +196,7 @@ export default function DashboardAdmin({
 
               <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
                 {bookings.length === 0 ? (
-                  <p className="text-xs text-white/30 font-mono py-6 text-center">Belum ada kontrak rute logistik aktif.</p>
+                  <p className="text-xs text-white/30 font-mono py-6 text-center">{lang === 'id' ? 'Belum ada kontrak rute logistik aktif.' : 'No active logistics route contracts established.'}</p>
                 ) : (
                   bookings.map(b => (
                     <div key={b.id} className="bg-black/45 p-3 border border-white/5 text-[10px] font-mono space-y-1">
@@ -197,8 +204,8 @@ export default function DashboardAdmin({
                         <span className="text-[#C5FF00] font-black">{b.id}</span>
                         <span className="text-white/40">{b.date}</span>
                       </div>
-                      <p className="text-white/60 leading-none">STATUS: <span className={`font-bold ${b.status === 'SELESAI' ? 'text-emerald-400' : b.status === "DALAM PERJALANAN" ? 'text-indigo-400' : 'text-amber-400'}`}>{b.status}</span></p>
-                      <p className="text-white/50 leading-tight mt-0.5">POSISI: <span className="text-white/85 font-medium">{b.currentLocation || 'Menunggu keputusan supir'}</span></p>
+                      <p className="text-white/60 leading-none">STATUS: <span className={`font-bold ${b.status === 'SELESAI' ? 'text-emerald-400' : b.status === "DALAM PERJALANAN" ? 'text-indigo-400' : 'text-amber-400'}`}>{b.status === 'MENUNGGU' ? trans('statusMenunggu', lang) : b.status === 'DALAM PERJALANAN' ? trans('statusDalamPerjalanan', lang) : trans('statusSelesai', lang)}</span></p>
+                      <p className="text-white/50 leading-tight mt-0.5">{lang === 'id' ? 'POSISI' : 'GPS POINT'}: <span className="text-white/85 font-medium">{b.currentLocation || (lang === 'id' ? 'Menunggu keputusan supir' : 'Awaiting driver input signal')}</span></p>
                     </div>
                   ))
                 )}
@@ -209,11 +216,11 @@ export default function DashboardAdmin({
             <div className="bg-[#121212] p-8 border border-white/10 rounded-none">
               <h4 className="font-black text-sm uppercase text-white tracking-tight mb-6 flex items-center gap-2">
                 <Bell className="w-5 h-5 text-red-500" />
-                SIARKAN INFO MITRA DRIVER_
+                {lang === 'id' ? 'SIARKAN INFO MITRA DRIVER_' : 'BROADCAST BULLETIN NOTICE_'}
               </h4>
               <form onSubmit={handlePostNotice} className="space-y-4">
                 <div>
-                  <label className="block text-[9px] font-mono uppercase tracking-widest text-white/50 mb-1.5">Judul Informasi</label>
+                  <label className="block text-[9px] font-mono uppercase tracking-widest text-white/50 mb-1.5">{lang === 'id' ? 'Judul Informasi' : 'Notice Bulletin Topic'}</label>
                   <input
                     type="text"
                     placeholder="e.g. Pembatasan ODOL Pelabuhan Merak"
@@ -223,10 +230,10 @@ export default function DashboardAdmin({
                   />
                 </div>
                 <div>
-                  <label className="block text-[9px] font-mono uppercase tracking-widest text-white/50 mb-1.5">Isi Informasi Detail</label>
+                  <label className="block text-[9px] font-mono uppercase tracking-widest text-white/50 mb-1.5">{lang === 'id' ? 'Isi Informasi Detail' : 'Bulletin Details'}</label>
                   <textarea
                     rows={2}
-                    placeholder="Tulis instruksi berkendara aman atau kabar perbaikan jembatan timbang."
+                    placeholder={lang === 'id' ? "Tulis instruksi berkendara aman atau kabar perbaikan jembatan timbang." : "Write safe driving manual or weight station checkpoints updates."}
                     value={newNoticeMsg}
                     onChange={(e) => setNewNoticeMsg(e.target.value)}
                     className="w-full bg-black/60 text-xs font-medium py-3.5 px-4 rounded-none border border-white/10 outline-none focus:border-[#C5FF00] text-white resize-none"
@@ -234,9 +241,9 @@ export default function DashboardAdmin({
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-[#C5FF00] hover:bg-white text-black font-black text-xs uppercase tracking-widest py-3.5 rounded-none flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  className="w-full bg-[#C5FF00] hover:bg-white text-black font-black text-xs uppercase tracking-widest py-3.5 rounded-none flex items-center justify-center gap-1.5 transition-all cursor-pointer border-0"
                 >
-                  <Plus className="w-4 h-4" /> KIRIM BROADCAST_
+                  <Plus className="w-4 h-4" /> {lang === 'id' ? 'KIRIM SIARAN_' : 'TRANSMIT BROADCAST_'}
                 </button>
               </form>
             </div>
@@ -250,12 +257,12 @@ export default function DashboardAdmin({
             <div className="bg-[#121212] p-8 border border-white/10 rounded-none">
               <h4 className="font-black text-sm uppercase text-white tracking-tight mb-6 flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-rose-500 animate-bounce" />
-                STATUS ALARM SISTEM AKTIF ({alerts.length})_
+                {lang === 'id' ? 'STATUS ALARM SISTEM AKTIF' : 'ACTIVE NETWORK ALARMS'} ({alerts.length})_
               </h4>
 
               {alerts.length === 0 ? (
                 <div className="text-center py-6 bg-black border border-dashed border-white/10 rounded-none text-xs font-mono text-white/40">
-                  TIDAK ADA JADWAL ALARM PERJALANAN AKTIF
+                  {lang === 'id' ? 'TIDAK ADA JADWAL ALARM PERJALANAN AKTIF' : 'NO REPORTED ALERTS STANDBY'}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -274,7 +281,7 @@ export default function DashboardAdmin({
                       </div>
                       <button
                         onClick={() => handleResolveAlert(alt.id)}
-                        className="text-[10px] font-black font-mono tracking-wider text-[#C5FF00] hover:bg-[#C5FF00] hover:text-black px-3.5 py-2 rounded-none border border-[#C5FF00]/40 transition-all cursor-pointer inline-flex items-center gap-1 flex-shrink-0 uppercase"
+                        className="text-[10px] font-black font-mono tracking-wider text-[#C5FF00] hover:bg-[#C5FF00] hover:text-black px-3.5 py-2 rounded-none border border-[#C5FF00]/40 transition-all cursor-pointer inline-flex items-center gap-1 flex-shrink-0 uppercase bg-transparent"
                       >
                         <CheckCircle className="w-3.5 h-3.5" /> RESOLVE_
                       </button>
@@ -288,7 +295,7 @@ export default function DashboardAdmin({
             <div className="bg-[#121212] p-8 border border-white/10 rounded-none">
               <h4 className="font-black text-sm uppercase text-white tracking-tight mb-6 flex items-center gap-2">
                 <Users className="w-5 h-5 text-[#C5FF00]" />
-                VALIDASI PERIZINAN KENDARAAN DRIVER BARU_
+                {lang === 'id' ? 'VALIDASI PERIZINAN KENDARAAN DRIVER BARU_' : 'CARRIER VEHICLE APPROVAL DESK_'}
               </h4>
 
               <div className="grid sm:grid-cols-2 gap-4">
@@ -306,9 +313,9 @@ export default function DashboardAdmin({
                     {drv.status === 'PENDING' ? (
                       <button
                         onClick={() => handleApproveDriver(drv.id)}
-                        className="bg-[#C5FF00] hover:bg-white text-black font-black text-[9px] px-3.5 py-2 rounded-none transition-all cursor-pointer uppercase tracking-wider"
+                        className="bg-[#C5FF00] hover:bg-white text-black font-black text-[9px] px-3.5 py-2 rounded-none transition-all cursor-pointer uppercase tracking-wider border-0"
                       >
-                        APPROVE MITRA_
+                        {lang === 'id' ? 'SETUJUI MITRA_' : 'APPROVE_'}
                       </button>
                     ) : (
                       <span className="text-[9px] font-mono font-black text-[#C5FF00] bg-[#C5FF00]/10 px-2.5 py-1 rounded-none border border-[#C5FF00]/30 tracking-widest uppercase">
@@ -324,8 +331,8 @@ export default function DashboardAdmin({
             <div className="bg-[#121212] p-8 border border-white/10 rounded-none">
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h4 className="font-black text-sm uppercase text-white tracking-tight">SUPERVISI &amp; OVERRIDE STATUS LOGISTIK_</h4>
-                  <p className="text-xs font-mono text-white/50">Daftar muatan global, bypass status, &amp; pembatalan langsung</p>
+                  <h4 className="font-black text-sm uppercase text-white tracking-tight">{lang === 'id' ? 'SUPERVISI & OVERRIDE STATUS LOGISTIK_' : 'LOGISTICS OVERWATCH & STATE BYPASS_'}</h4>
+                  <p className="text-xs font-mono text-white/50">{lang === 'id' ? 'Daftar muatan global, bypass status, & pembatalan langsung' : 'Manage global cargo routes, bypass state constraints, or prune entries.'}</p>
                 </div>
               </div>
 
@@ -356,15 +363,15 @@ export default function DashboardAdmin({
                       
                       {/* State manipulator dropdown */}
                       <div className="text-right">
-                        <label className="block text-[9px] uppercase font-mono tracking-wider text-white/40 mb-1">State Override_</label>
+                        <label className="block text-[9px] uppercase font-mono tracking-wider text-white/40 mb-1">{lang === 'id' ? 'Tembus Status_' : 'State Override_'}</label>
                         <select
                           value={b.status}
                           onChange={(e) => onUpdateBookingStatus(b.id, e.target.value as Booking['status'])}
                           className="bg-black text-[#C5FF00] text-xs font-mono font-black py-2 px-3.5 border border-white/15 outline-none cursor-pointer appearance-none rounded-none uppercase"
                         >
-                          <option value="MENUNGGU">MENUNGGU (Open)</option>
-                          <option value="DALAM PERJALANAN">DALAM PERJALANAN</option>
-                          <option value="SELESAI">SELESAI</option>
+                          <option value="MENUNGGU">{lang === 'id' ? 'MENUNGGU (Open)' : 'MENUNGGU (Open)'}</option>
+                          <option value="DALAM PERJALANAN">{lang === 'id' ? 'DALAM PERJALANAN' : 'IN TRANSIT'}</option>
+                          <option value="SELESAI">{lang === 'id' ? 'SELESAI' : 'DELIVERED / DONE'}</option>
                         </select>
                       </div>
 
@@ -376,12 +383,12 @@ export default function DashboardAdmin({
                               ? 'bg-indigo-950/30 text-indigo-400 border-indigo-500/30' 
                               : 'bg-amber-950/30 text-[#C5FF00] border-[#C5FF00]/30'
                         }`}>
-                          {b.status}
+                          {b.status === 'MENUNGGU' ? trans('statusMenunggu', lang) : b.status === 'DALAM PERJALANAN' ? trans('statusDalamPerjalanan', lang) : trans('statusSelesai', lang)}
                         </span>
 
                         <button
                           onClick={() => onDeleteBooking(b.id)}
-                          className="p-1.5 text-red-400 hover:bg-red-950/50 hover:text-red-300 border border-transparent hover:border-red-900/30 rounded-none transition-all cursor-pointer"
+                          className="p-1.5 text-red-400 hover:bg-red-950/50 hover:text-red-300 border border-transparent hover:border-red-900/30 rounded-none transition-all cursor-pointer bg-transparent"
                           title="Frictionless delete / prune order"
                         >
                           <Trash2 className="w-4 h-4" />

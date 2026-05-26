@@ -17,13 +17,17 @@ import {
 } from 'lucide-react';
 import { AppView } from '../types';
 import { registerNewAccount } from '../lib/firebase';
+import { Language, trans } from '../lib/translations';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface RegisterCustomerProps {
   onNavigate: (view: AppView) => void;
   setUserMode: (mode: 'customer' | 'partner' | 'admin') => void;
+  lang: Language;
+  onSetLang: (lang: Language) => void;
 }
 
-export default function RegisterCustomer({ onNavigate, setUserMode }: RegisterCustomerProps) {
+export default function RegisterCustomer({ onNavigate, setUserMode, lang, onSetLang }: RegisterCustomerProps) {
   const [companyName, setCompanyName] = useState('');
   const [picEmail, setPicEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -35,7 +39,7 @@ export default function RegisterCustomer({ onNavigate, setUserMode }: RegisterCu
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
     if (!companyName || !picEmail || !phoneNumber || !city || !password) {
-      setError('Mohon lengkapi semua bidang isian.');
+      setError(lang === 'id' ? 'Mohon lengkapi semua bidang isian.' : 'Please complete all fields.');
       return;
     }
 
@@ -50,10 +54,10 @@ export default function RegisterCustomer({ onNavigate, setUserMode }: RegisterCu
         phoneNumber: phoneNumber,
         city: city
       });
-      alert('Registrasi Akun Pelanggan Sukses! Akun Anda telah tersimpan di sistem dwi-sisi database. Silakan masuk.');
+      alert(lang === 'id' ? 'Registrasi Akun Pelanggan Sukses! Akun Anda telah tersimpan di database. Silakan masuk.' : 'Customer Account Registered Successfully! Your data is preserved. Please login.');
       onNavigate('login');
     } catch (err: any) {
-      setError('Sistem Error: Gagal menyimpan data registrasi ke database. Periksa koneksi Anda.');
+      setError(lang === 'id' ? 'Sistem Error: Gagal menyimpan data registrasi ke database. Periksa koneksi Anda.' : 'System Error: Failed to save registration details to central database.');
     } finally {
       setLoading(false);
     }
@@ -69,10 +73,13 @@ export default function RegisterCustomer({ onNavigate, setUserMode }: RegisterCu
           className="flex items-center gap-2 text-white/60 hover:text-[#C5FF00] font-black text-xs uppercase tracking-widest transition-all cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          Kembali ke Beranda
+          {trans('kembaliBeranda', lang)}
         </button>
-        <div className="text-xl font-black tracking-tighter uppercase select-none">
-          TRUKIN<span className="text-[#C5FF00]">_</span>
+        <div className="flex items-center gap-4">
+          <LanguageSwitcher currentLang={lang} onSetLang={onSetLang} />
+          <div className="text-xl font-black tracking-tighter uppercase select-none">
+            TRUKIN<span className="text-[#C5FF00]">_</span>
+          </div>
         </div>
       </div>
 
@@ -83,9 +90,9 @@ export default function RegisterCustomer({ onNavigate, setUserMode }: RegisterCu
           className="bg-[#121212] p-10 rounded-none border border-white/10 w-full"
         >
           <div className="text-center mb-8">
-            <span className="text-[9px] font-mono bg-white/5 border border-white/10 text-[#C5FF00] font-bold px-4 py-1.5 rounded-none uppercase tracking-[0.2em] mb-3 inline-block">UNTUK PENGIRIM CARGO_</span>
-            <h2 className="text-3xl font-black uppercase tracking-tight text-white mb-2">REGISTRASI PENGIRIM_</h2>
-            <p className="text-white/60 text-xs font-mono uppercase tracking-wider">Silakan lengkapi profil logistik Anda</p>
+            <span className="text-[9px] font-mono bg-white/5 border border-white/10 text-[#C5FF00] font-bold px-4 py-1.5 rounded-none uppercase tracking-[0.2em] mb-3 inline-block">{trans('untukPengirim', lang)}_</span>
+            <h2 className="text-2xl font-black uppercase tracking-tight text-white mb-2">{trans('registrasiPengirim', lang)}</h2>
+            <p className="text-white/60 text-xs font-mono uppercase tracking-wider">{trans('formulirPengirimDesc', lang)}</p>
           </div>
 
           {error && (
@@ -97,7 +104,7 @@ export default function RegisterCustomer({ onNavigate, setUserMode }: RegisterCu
 
           <form onSubmit={handleRegister} className="space-y-5">
             <div>
-              <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">Nama Perusahaan / Organisasi</label>
+              <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">{trans('namaKorporat', lang)}</label>
               <div className="relative">
                 <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                 <input
@@ -112,7 +119,7 @@ export default function RegisterCustomer({ onNavigate, setUserMode }: RegisterCu
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">E-mail PIC Utama</label>
+                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">E-mail PIC</label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <input
@@ -126,7 +133,7 @@ export default function RegisterCustomer({ onNavigate, setUserMode }: RegisterCu
               </div>
 
               <div>
-                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">No. Telepon / WA</label>
+                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">{trans('nomorTelepon', lang)}</label>
                 <div className="relative">
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <input
@@ -142,7 +149,7 @@ export default function RegisterCustomer({ onNavigate, setUserMode }: RegisterCu
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">Kota Operasional</label>
+                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">{trans('kotaOperasional', lang)}</label>
                 <div className="relative">
                   <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <input
@@ -156,7 +163,7 @@ export default function RegisterCustomer({ onNavigate, setUserMode }: RegisterCu
               </div>
 
               <div>
-                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">Buat Sandi Rahasia</label>
+                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">{trans('password', lang)}</label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <input
@@ -173,20 +180,20 @@ export default function RegisterCustomer({ onNavigate, setUserMode }: RegisterCu
             <button
               type="submit"
               disabled={loading}
-              className={`w-full bg-[#C5FF00] text-black py-4.5 rounded-none font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex justify-center items-center gap-2 cursor-pointer mt-6 ${loading ? 'opacity-50 cursor-not-allowed' : 'animate-pulse'}`}
+              className={`w-full bg-[#C5FF00] text-black py-4.5 rounded-none font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex justify-center items-center gap-2 cursor-pointer mt-6 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {loading ? 'MEMPROSES PENYIMPANAN DATA...' : 'PROSES REGISTRASI PENGIRIM'}
+              {loading ? (lang === 'id' ? 'MEMPROSES...' : 'PROCESSING...') : trans('prosesRegistrasiShipper', lang)}
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
           <p className="text-center text-xs text-white/50 mt-8 font-mono">
-            SUDAH TERDAFTAR?{' '}
+            {trans('sudahPunyaAkun', lang)}{' '}
             <button 
               onClick={() => onNavigate('login')} 
               className="text-[#C5FF00] font-black hover:underline cursor-pointer uppercase font-sans text-xs tracking-wider ml-1"
             >
-              MASUK AKUN
+              {lang === 'id' ? 'MASUK AKUN' : 'LOGIN HERE'}
             </button>
           </p>
 

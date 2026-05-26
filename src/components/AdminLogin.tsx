@@ -10,20 +10,23 @@ import {
   Mail, 
   ArrowLeft, 
   ArrowRight,
-  ShieldCheck,
   AlertCircle,
   Cpu
 } from 'lucide-react';
 import { AppView, Account } from '../types';
 import { authenticateAccount } from '../lib/firebase';
+import { Language, trans } from '../lib/translations';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface AdminLoginProps {
   onNavigate: (view: AppView) => void;
   setUserMode: (mode: 'customer' | 'partner' | 'admin') => void;
   onLoginSuccess: (user: Account) => void;
+  lang: Language;
+  onSetLang: (lang: Language) => void;
 }
 
-export default function AdminLogin({ onNavigate, setUserMode, onLoginSuccess }: AdminLoginProps) {
+export default function AdminLogin({ onNavigate, setUserMode, onLoginSuccess, lang, onSetLang }: AdminLoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -32,7 +35,7 @@ export default function AdminLogin({ onNavigate, setUserMode, onLoginSuccess }: 
   const handleAdminSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError('Kredensial Admin wajib diisi.');
+      setError(lang === 'id' ? 'Kredensial Admin wajib diisi.' : 'Admin credentials are required.');
       return;
     }
     
@@ -45,10 +48,10 @@ export default function AdminLogin({ onNavigate, setUserMode, onLoginSuccess }: 
         setUserMode('admin');
         onNavigate('dashboard-admin');
       } else {
-        setError('Otentikasi Gagal: Kredensial Admin salah atau ditolak.');
+        setError(lang === 'id' ? 'Otentikasi Gagal: Kredensial Admin salah atau ditolak.' : 'Authentication Failed: Incorrect admin credentials.');
       }
     } catch (err) {
-      setError('Gagal menghubungi server otentikasi admin.');
+      setError(lang === 'id' ? 'Gagal menghubungi server otentikasi admin.' : 'Failed to contact central authentication authority.');
     } finally {
       setLoading(false);
     }
@@ -77,18 +80,21 @@ export default function AdminLogin({ onNavigate, setUserMode, onLoginSuccess }: 
           className="flex items-center gap-2 text-white/60 hover:text-[#C5FF00] font-black text-xs uppercase tracking-widest transition-all cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          Beranda Layanan
+          {trans('kembaliBeranda', lang)}
         </button>
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] text-[#C5FF00] border border-[#C5FF00]/30 rounded-none px-2 py-0.5 tracking-widest font-mono uppercase bg-[#C5FF00]/5">SECURE_ADMIN</span>
-          <div className="text-xl font-black tracking-tighter uppercase select-none">
-            TRUKIN<span className="text-[#C5FF00]">_</span>
+        <div className="flex items-center gap-4">
+          <LanguageSwitcher currentLang={lang} onSetLang={onSetLang} />
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-[#C5FF00] border border-[#C5FF00]/30 rounded-none px-2 py-0.5 tracking-widest font-mono uppercase bg-[#C5FF00]/5">SECURE_ADMIN</span>
+            <div className="text-xl font-black tracking-tighter uppercase select-none">
+              TRUKIN<span className="text-[#C5FF00]">_</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Admin Central Entry Box */}
-      <div className="flex-1 flex items-center justify-center max-w-md mx-auto w-full">
+      <div className="flex-1 flex items-center justify-center max-w-sm mx-auto w-full">
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -99,7 +105,7 @@ export default function AdminLogin({ onNavigate, setUserMode, onLoginSuccess }: 
               <Cpu className="w-6 h-6" />
             </div>
             <h2 className="text-2xl font-black uppercase tracking-tight text-white mb-2">CENTRAL CONTROL_</h2>
-            <p className="text-white/60 text-xs font-mono uppercase tracking-wider">Otoritas kendali operasi dwi-sisi TrukIn</p>
+            <p className="text-white/60 text-xs font-mono uppercase tracking-wider">{trans('konsolControlPanel', lang)}</p>
           </div>
 
           {error && (
@@ -119,13 +125,13 @@ export default function AdminLogin({ onNavigate, setUserMode, onLoginSuccess }: 
                   placeholder="admin.control@trukin.co.id"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-black/60 border border-white/10 focus:border-[#C5FF00] rounded-none py-4 pl-12 pr-4 text-sm font-medium text-white placeholder-white/20 outline-none transition-all"
+                  className="w-full bg-black/60 border border-[#00FFF0]/10 focus:border-[#C5FF00] rounded-none py-4 pl-12 pr-4 text-sm font-medium text-white placeholder-white/20 outline-none transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-2">Sandi Rahasia</label>
+              <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-2">{trans('password', lang)}</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                 <input
@@ -133,7 +139,7 @@ export default function AdminLogin({ onNavigate, setUserMode, onLoginSuccess }: 
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-black/60 border border-white/10 focus:border-[#C5FF00] rounded-none py-4 pl-12 pr-4 text-sm font-medium text-white placeholder-white/20 outline-none transition-all"
+                  className="w-full bg-black/60 border border-[#00FFF0]/10 focus:border-[#C5FF00] rounded-none py-4 pl-12 pr-4 text-sm font-medium text-white placeholder-white/20 outline-none transition-all"
                 />
               </div>
             </div>
@@ -143,19 +149,20 @@ export default function AdminLogin({ onNavigate, setUserMode, onLoginSuccess }: 
               disabled={loading}
               className={`w-full bg-[#C5FF00] text-black py-4.5 rounded-none font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex justify-center items-center gap-2 cursor-pointer ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {loading ? 'MEMVERIFIKASI OTORITAS...' : 'MASUK KONSOL CONTROL PANEL'}
+              {loading ? (lang === 'id' ? 'MEMVERIFIKASI...' : 'VERIFYING...') : trans('masukKonsolControlBtn', lang)}
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          {/* Demo Admin bypass */}
+          {/* Quick bypassing console log */}
           <div className="mt-8 pt-8 border-t border-white/10 text-center">
+            <span className="text-[10px] uppercase tracking-[0.2em] font-mono text-white/40 block mb-4">{trans('logSistemDesc', lang)}</span>
             <button 
               onClick={demoAdminLogin}
-              className="w-full bg-white/5 hover:bg-white/10 text-[#C5FF00] font-black font-sans py-3.5 px-4 rounded-none text-xs transition-all border border-white/10 cursor-pointer flex items-center justify-center gap-2 uppercase tracking-widest"
+              className="w-full bg-white/5 border border-white/10 hover:border-[#C5FF00] text-[#C5FF00] font-mono py-3.5 px-4 rounded-none text-[10px] uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5"
             >
-              <ShieldCheck className="w-4 h-4" />
-              MASUK CEPAT DEMO ADMIN
+              <Cpu className="w-3.5 h-3.5" />
+              {trans('ujiDemoAdmin', lang)}
             </button>
           </div>
 
@@ -163,8 +170,8 @@ export default function AdminLogin({ onNavigate, setUserMode, onLoginSuccess }: 
       </div>
 
       {/* Bottom Footer Row */}
-      <div className="text-center text-[10px] font-mono uppercase tracking-widest text-[#a4a7af]/50 mt-8">
-        Hak Cipta Dilindungi &copy; 2026 Divisi Keamanan IT TrukIn Indonesia.
+      <div className="text-center text-[10px] uppercase tracking-widest text-white/30 font-mono mt-8">
+        &copy; 2026 TRUKIN LABS. OVERWATCH INTERFACE SECURE.
       </div>
 
     </div>

@@ -20,6 +20,8 @@ import {
   Calendar
 } from 'lucide-react';
 import { Booking, AppView, Account } from '../types';
+import { Language, trans } from '../lib/translations';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface DashboardCustomerProps {
   bookings: Booking[];
@@ -27,6 +29,8 @@ interface DashboardCustomerProps {
   onAddBooking: (booking: Booking) => void;
   onDeleteBooking: (id: string) => void;
   onNavigate: (view: AppView) => void;
+  lang: Language;
+  onSetLang: (lang: Language) => void;
 }
 
 export default function DashboardCustomer({ 
@@ -34,7 +38,9 @@ export default function DashboardCustomer({
   currentUser,
   onAddBooking, 
   onDeleteBooking,
-  onNavigate 
+  onNavigate,
+  lang,
+  onSetLang
 }: DashboardCustomerProps) {
   
   // Create state for new booking form
@@ -80,20 +86,20 @@ export default function DashboardCustomer({
   const handleBookingSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!pickup.trim()) {
-      alert('Tulis rute pengiriman asal Anda.');
+      alert(lang === 'id' ? 'Tulis rute pengiriman asal Anda.' : 'Please type your pickup delivery origin.');
       return;
     }
     if (!destination.trim()) {
-      alert('Tulis rute tujuan pengiriman Anda.');
+      alert(lang === 'id' ? 'Tulis rute tujuan pengiriman Anda.' : 'Please type your shipping destination.');
       return;
     }
     if (!cargoDetail) {
-      alert('Tulis detail kargo atau muatan Anda.');
+      alert(lang === 'id' ? 'Tulis detail kargo atau muatan Anda.' : 'Please specify cargo or load details.');
       return;
     }
 
     const uniqueId = `#TK-${Math.floor(1000 + Math.random() * 9000)}`;
-    const formattedDateString = new Date(date).toLocaleDateString('id-ID', {
+    const formattedDateString = new Date(date).toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
@@ -114,7 +120,7 @@ export default function DashboardCustomer({
 
     onAddBooking(newBooking);
     setCargoDetail('');
-    setSuccessMsg(`Pemesanan Truk ${uniqueId} Berhasil Dibuat!`);
+    setSuccessMsg(lang === 'id' ? `Pemesanan Truk ${uniqueId} Berhasil Dibuat!` : `Truck booking ${uniqueId} successful!`);
     setTimeout(() => setSuccessMsg(''), 5000);
   };
 
@@ -152,13 +158,14 @@ export default function DashboardCustomer({
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
+            <LanguageSwitcher currentLang={lang} onSetLang={onSetLang} />
             <button 
               onClick={() => onNavigate('landing')}
-              className="flex items-center gap-1.5 text-xs font-mono tracking-wider text-white/60 hover:text-red-400 uppercase font-bold transition-all cursor-pointer"
+              className="flex items-center gap-1.5 text-xs font-mono tracking-wider text-white/60 hover:text-red-400 uppercase font-bold transition-all cursor-pointer bg-transparent border-0"
             >
               <LogOut className="w-4 h-4 text-red-500" />
-              Keluar Sesi
+              {trans('keluarSesi', lang)}
             </button>
           </div>
         </div>
@@ -183,10 +190,10 @@ export default function DashboardCustomer({
                 <p className="text-xs font-mono text-white/50">
                   {currentUser?.email || 'alex.rivera@globalstore.id'} &bull; 
                   Tel: {currentUser?.phoneNumber || '08123456789'} &bull; 
-                  Lokasi: {currentUser?.city || 'Jakarta Barat'}
+                  {lang === 'id' ? 'Lokasi' : 'Base'}: {currentUser?.city || 'Jakarta Barat'}
                 </p>
                 <div className="flex items-center gap-2 mt-2 bg-[#C5FF00]/10 border border-[#C5FF00]/30 text-[#C5FF00] px-2.5 py-0.5 rounded-none text-[9px] w-fit font-mono font-bold uppercase tracking-wider">
-                  <ShieldCheck className="w-3.5 h-3.5" /> Akun Terverifikasi
+                  <ShieldCheck className="w-3.5 h-3.5" /> {lang === 'id' ? 'Akun Terverifikasi' : 'Verified Merchant Account'}
                 </div>
               </div>
             </div>
@@ -194,21 +201,21 @@ export default function DashboardCustomer({
             {/* Quick stats grid */}
             <div className="flex gap-4 md:gap-8 flex-wrap w-full md:w-auto">
               <div className="bg-black/50 border border-white/10 px-5 py-4 rounded-none flex-1 md:flex-initial min-w-[130px]">
-                <p className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em]">ON DELIVERY</p>
+                <p className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em]">{trans('onDeliveryKpi', lang)}</p>
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-2xl font-black text-white font-mono">{stats.active}</span>
-                  <span className="text-[10px] text-white/40 uppercase font-mono">Trks</span>
+                  <span className="text-[10px] text-white/40 uppercase font-mono">{lang === 'id' ? 'TRUK' : 'TRUCKS'}</span>
                 </div>
               </div>
               <div className="bg-black/50 border border-white/10 px-5 py-4 rounded-none flex-1 md:flex-initial min-w-[130px]">
                 <p className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em]">QUEUE PO</p>
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-2xl font-black text-[#C5FF00] font-mono">{stats.waiting}</span>
-                  <span className="text-[10px] text-white/40 uppercase font-mono">Hold</span>
+                  <span className="text-[10px] text-white/40 uppercase font-mono">{lang === 'id' ? 'Tunda' : 'HOLD'}</span>
                 </div>
               </div>
               <div className="bg-white/5 border border-white/10 text-white px-5 py-4 rounded-none flex-1 md:flex-initial min-w-[180px]">
-                <p className="text-[#C5FF00] text-[9px] font-mono uppercase tracking-[0.2em] font-black">TOTAL EXPENSE_</p>
+                <p className="text-[#C5FF00] text-[9px] font-mono uppercase tracking-[0.2em] font-black">{lang === 'id' ? 'TOTAL PENGELUARAN_' : 'TOTAL EXPENSE_'}</p>
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-xl font-black font-mono text-white tracking-tight whitespace-nowrap">{stats.totalMoney}</span>
                 </div>
@@ -230,7 +237,7 @@ export default function DashboardCustomer({
               
               <h3 className="text-lg font-black uppercase text-white mb-6 flex items-center gap-2 tracking-tight">
                 <Plus className="w-5 h-5 text-[#C5FF00]" />
-                PESAN ARMADA BARU_
+                {trans('pesanArmadaBaru', lang)}
               </h3>
 
               {successMsg && (
@@ -244,7 +251,7 @@ export default function DashboardCustomer({
                 {/* Route specs */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">Rute Pengiriman (Asal)</label>
+                    <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">{trans('rutePengirimanAsal', lang)}</label>
                     <div className="relative">
                       <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C5FF00]" />
                       <input
@@ -258,7 +265,7 @@ export default function DashboardCustomer({
                   </div>
                   
                   <div>
-                    <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">Rute Tujuan</label>
+                    <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">{trans('ruteTujuan', lang)}</label>
                     <div className="relative">
                       <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" />
                       <input
@@ -274,7 +281,7 @@ export default function DashboardCustomer({
 
                 {/* Cargo Details */}
                 <div>
-                  <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">Detail Muatan / Cargo</label>
+                  <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">{trans('detailMuatanCargo', lang)}</label>
                   <div className="relative">
                     <Package className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                     <input
@@ -290,7 +297,7 @@ export default function DashboardCustomer({
                 {/* Weight in Tons */}
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <label className="text-[9px] font-mono uppercase tracking-wider text-white/50">Berat Kargo (Tonnase)</label>
+                    <label className="text-[9px] font-mono uppercase tracking-wider text-white/50">{trans('beratKargoTonnase', lang)}</label>
                     <span className="text-xs font-black font-mono text-[#C5FF00] bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-none">{weight} TON</span>
                   </div>
                   <input
@@ -306,7 +313,7 @@ export default function DashboardCustomer({
                 {/* Truck specifications */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">Jenis Layanan Truk</label>
+                    <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">{trans('jenisLayananTruk', lang)}</label>
                     <div className="relative">
                       <Truck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                       <select
@@ -314,39 +321,39 @@ export default function DashboardCustomer({
                         onChange={(e) => setTruckType(e.target.value as Booking['truckType'])}
                         className="w-full bg-black/60 text-xs font-bold font-mono py-3.5 pl-10 pr-4 border border-white/10 rounded-none appearance-none cursor-pointer"
                       >
-                        <option value="TRUK BOKS">TRUK BOKS</option>
-                        <option value="TRAILER">TRAILER CONTAINER</option>
-                        <option value="BAK TERBUKA">BAK TERBUKA/FLAT</option>
-                        <option value="TRUK PENDINGIN">COLD CONTAINER</option>
+                        <option value="TRUK BOKS">{lang === 'id' ? 'TRUK BOKS' : 'BOX TRUCK'}</option>
+                        <option value="TRAILER">{lang === 'id' ? 'TRAILER CONTAINER' : 'TRAILER CONTAINER'}</option>
+                        <option value="BAK TERBUKA">{lang === 'id' ? 'BAK TERBUKA/FLAT' : 'FLATBED CARRIER'}</option>
+                        <option value="TRUK PENDINGIN">{lang === 'id' ? 'TRUK BERPENDINGIN' : 'REFRIGERATED TRUCK'}</option>
                       </select>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">Prioritas Kiriman</label>
+                    <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">{trans('prioritasKiriman', lang)}</label>
                     <div className="flex bg-black p-1 border border-white/10 rounded-none">
                       <button
                         type="button"
                         onClick={() => setPriority('STANDAR')}
-                        className={`flex-1 text-[9px] font-black py-2 rounded-none transition-all ${
+                        className={`flex-1 text-[9px] font-black py-2 rounded-none transition-all cursor-pointer ${
                           priority === 'STANDAR' 
                             ? 'bg-white text-black font-bold' 
                             : 'text-white/60'
                         }`}
                       >
-                        STANDAR
+                        {lang === 'id' ? 'STANDAR' : 'STANDARD'}
                       </button>
                       <button
                         type="button"
                         onClick={() => setPriority('EKSPRES')}
-                        className={`flex-1 text-[9px] font-black py-2 rounded-none transition-all flex items-center justify-center gap-1 ${
+                        className={`flex-1 text-[9px] font-black py-2 rounded-none transition-all flex items-center justify-center gap-1 cursor-pointer ${
                           priority === 'EKSPRES' 
                             ? 'bg-[#C5FF00] text-black font-bold' 
                             : 'text-white/60'
                         }`}
                       >
                         <Zap className="w-3 h-3" />
-                        EKSPRES
+                        {lang === 'id' ? 'EKSPRES' : 'EXPRESS'}
                       </button>
                     </div>
                   </div>
@@ -354,7 +361,7 @@ export default function DashboardCustomer({
 
                 {/* Date Selection */}
                 <div>
-                  <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">Tanggal Keberangkatan</label>
+                  <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">{trans('metodePengiriman', lang)}</label>
                   <div className="relative">
                     <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                     <input
@@ -368,12 +375,12 @@ export default function DashboardCustomer({
 
                 {/* Live Estimator Display */}
                 <div className="bg-black/80 rounded-none p-5 border border-white/15 mt-6">
-                  <span className="text-[9px] font-mono tracking-widest uppercase text-white/40 block mb-1">KONTRAK HARGA FLAT MENGIKAT_</span>
+                  <span className="text-[9px] font-mono tracking-widest uppercase text-white/40 block mb-1">{trans('estimasiTarifInstan', lang)}_</span>
                   <div className="flex justify-between items-baseline">
                     <span className="text-2xl font-black text-[#C5FF00] font-mono">{formattedQuote}</span>
                     <span className="text-[9px] text-white/60 font-mono tracking-wider border border-white/10 px-2 py-0.5 rounded-none">ALL IN</span>
                   </div>
-                  <span className="text-[9px] text-white/50 mt-1.5 block leading-tight font-mono">Biaya fix termasuk BBM, tol, asuransi penuh, pengawal operasional.</span>
+                  <span className="text-[9px] text-white/50 mt-1.5 block leading-tight font-mono">{lang === 'id' ? 'Biaya fix termasuk BBM, tol, asuransi penuh, pengawal operasional.' : 'Fixed cost includes fuel, tolls, full cargo insurance, driver allowance.'}</span>
                 </div>
 
                 <button
@@ -381,7 +388,7 @@ export default function DashboardCustomer({
                   className="w-full bg-[#C5FF00] text-black py-4.5 rounded-none font-black text-xs uppercase tracking-widest hover:bg-white cursor-pointer flex justify-center items-center gap-2 mt-4"
                 >
                   <Plus className="w-4 h-4" />
-                  KONFIRMASI SYSTEM BOOKING_
+                  {trans('kirimOrderBtn', lang)}_
                 </button>
               </form>
 
@@ -391,12 +398,12 @@ export default function DashboardCustomer({
           {/* RIGHT: Active Bookings Listing & Live Text tracking Telemetry */}
           <div className="lg:col-span-7 space-y-8">
             
-            {/* Live Text Telemetry Panel (Replaces Map Tracking) */}
+            {/* Live Text Telemetry Panel */}
             <div className="bg-[#121212] p-6 border border-white/10 rounded-none">
               <div className="flex justify-between items-center mb-5">
                 <div>
-                  <h4 className="font-black text-sm uppercase text-white tracking-tight">STATUS PELACAKAN AKTIF (MONITOR TEKSTUAL)_</h4>
-                  <p className="text-[10px] font-mono text-white/50">Laporan posisi riil kontainer terupdate langsung dari supir armada</p>
+                  <h4 className="font-black text-sm uppercase text-white tracking-tight">{lang === 'id' ? 'STATUS PELACAKAN JALAN AKTIF_' : 'ACTIVE TRANSIT TELEMETRY_'}</h4>
+                  <p className="text-[10px] font-mono text-white/50">{lang === 'id' ? 'Laporan posisi riil kontainer terupdate langsung dari supir armada' : 'Real-time transit feedback stream logged directly by the carrier crew'}</p>
                 </div>
                 <span className="flex h-2 w-2 relative">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C5FF00] opacity-75"></span>
@@ -408,8 +415,8 @@ export default function DashboardCustomer({
                 {bookings.filter(b => b.status === 'DALAM PERJALANAN').length === 0 ? (
                   <div className="text-center py-10 border border-dashed border-white/10 rounded-none bg-black/30">
                     <Truck className="w-8 h-8 text-white/20 mx-auto mb-2" />
-                    <p className="font-mono text-xs text-white/40 uppercase">TIDAK ADA ARMADA JALAN AKTIF SEKARANG</p>
-                    <p className="text-[10px] text-white/30 font-mono mt-0.5">Semua pengiriman selesai atau sedang dalam jadwal antrean.</p>
+                    <p className="font-mono text-xs text-white/40 uppercase">{lang === 'id' ? 'TIDAK ADA JADWAL JALAN SEKARANG' : 'NO CARRIERS ENGAGED CURRENTLY'}</p>
+                    <p className="text-[10px] text-white/30 font-mono mt-0.5">{lang === 'id' ? 'Semua pengiriman selesai atau sedang dalam jadwal antrean.' : 'All shipments are completed or waiting in queue.'}</p>
                   </div>
                 ) : (
                   bookings.filter(b => b.status === 'DALAM PERJALANAN').map(b => (
@@ -426,8 +433,8 @@ export default function DashboardCustomer({
                         <p className="text-[10px] font-mono text-white/60 uppercase mt-0.5">{b.pickup} &rarr; {b.destination}</p>
                       </div>
                       <div className="bg-white/[0.03] p-3 border border-white/5">
-                        <span className="text-[8px] font-mono text-white/40 block uppercase tracking-wider mb-1">KETERANGAN TEMPAT TERKINI (DILAPORKAN SUPIR):</span>
-                        <p className="text-xs text-[#C5FF00] font-mono font-bold">{b.currentLocation || "Menunggu pembaruan lokasi dari supir."}</p>
+                        <span className="text-[8px] font-mono text-white/40 block uppercase tracking-wider mb-1">{lang === 'id' ? 'KETERANGAN TEMPAT TERKINI (DURASI JALAN):' : 'GPS TRANSMISSION POINT FEEDBACK:'}</span>
+                        <p className="text-xs text-[#C5FF00] font-mono font-bold">{b.currentLocation || (lang === 'id' ? "Menunggu pembaruan lokasi dari supir." : "Waiting driver feedback update.")}</p>
                       </div>
                     </div>
                   ))
@@ -439,8 +446,8 @@ export default function DashboardCustomer({
             <div className="bg-[#121212] p-8 border border-white/10 rounded-none">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                  <h3 className="text-base font-black uppercase tracking-tight text-white">DAFTAR KONTRAK OPERASI JALAN_</h3>
-                  <p className="text-xs font-mono text-white/50">Log status logistik riwayat muatan kargo Anda</p>
+                  <h3 className="text-base font-black uppercase tracking-tight text-white">{trans('daftarPemesananAktif', lang)}</h3>
+                  <p className="text-xs font-mono text-white/50">{lang === 'id' ? 'Log status logistik riwayat muatan kargo Anda' : 'Complete historic cargo shipping and billing ledger'}</p>
                 </div>
 
                 {/* Filters */}
@@ -451,11 +458,11 @@ export default function DashboardCustomer({
                       onClick={() => setFilterStatus(st)}
                       className={`text-[9px] font-black font-mono tracking-wider px-3 py-1.5 rounded-none transition-all cursor-pointer uppercase ${
                         filterStatus === st 
-                          ? 'bg-[#C5FF00] text-black' 
+                          ? 'bg-[#C5FF00] text-black font-bold' 
                           : 'text-white/60 hover:text-white'
                       }`}
                     >
-                      {st === 'ALL' ? 'SEMUA_LOG' : st}
+                      {st === 'ALL' ? (lang === 'id' ? 'SEMUA_LOG' : 'ALL_HISTORY') : (st === 'MENUNGGU' ? trans('statusMenunggu', lang) : st === 'DALAM PERJALANAN' ? trans('statusDalamPerjalanan', lang) : trans('statusSelesai', lang))}
                     </button>
                   ))}
                 </div>
@@ -466,7 +473,7 @@ export default function DashboardCustomer({
                 {filteredBookings.length === 0 ? (
                   <div className="text-center py-12 border border-dashed border-white/10 rounded-none bg-black/40">
                     <Truck className="w-10 h-10 text-white/20 mx-auto mb-3" />
-                    <p className="font-mono text-xs text-white/40 uppercase">TIDAK ADA JADWAL PEMESANAN AKTIF</p>
+                    <p className="font-mono text-xs text-white/40 uppercase">{lang === 'id' ? 'TIDAK ADA JADWAL PEMESANAN AKTIF' : 'NO RECORD MATCHING SELECTION'}</p>
                   </div>
                 ) : (
                   filteredBookings.map((b) => (
@@ -493,21 +500,23 @@ export default function DashboardCustomer({
                         </div>
 
                         <div className="flex items-center gap-4 flex-wrap text-[9px] font-mono font-bold text-white/40 uppercase tracking-widest">
-                          <span className="border border-white/10 px-2.5 py-1 rounded-none bg-white/5 text-white/70">{b.truckType}</span>
+                          <span className="border border-white/10 px-2.5 py-1 rounded-none bg-white/5 text-white/70">
+                            {b.truckType === 'TRUK BOKS' ? (lang === 'id' ? 'TRUK BOKS' : 'BOX TRUCK') : b.truckType === 'TRAILER' ? 'TRAILER' : b.truckType === 'BAK TERBUKA' ? (lang === 'id' ? 'BAK TERBUKA' : 'FLATBED') : (lang === 'id' ? 'COLD CHAIN BERPENDINGIN' : 'REFRIGERATED COLD TRUCK')}
+                          </span>
                           <span>&bull;</span>
                           <span className="text-white/70">{b.weight} TON</span>
                           <span>&bull;</span>
                           <span className={`border px-2 py-0.5 rounded-none font-black ${b.priority === 'EKSPRES' ? 'bg-[#C5FF00]/5 border-[#C5FF00]/30 text-[#C5FF00]' : 'border-white/10 bg-white/5 text-white/50'}`}>
-                            {b.priority}
+                            {b.priority === 'EKSPRES' ? (lang === 'id' ? 'EKSPRES' : 'EXPRESS') : (lang === 'id' ? 'STANDAR' : 'STANDARD')}
                           </span>
                         </div>
 
                         {/* Text Location Display (Reported dynamically by drivers) */}
                         {b.status !== 'MENUNGGU' && (
                           <div className="mt-4 pt-3 border-t border-white/10 bg-white/[0.02] p-3 border-l-2 border-[#C5FF00]/50">
-                            <span className="text-[8px] font-mono text-[#C5FF00] uppercase tracking-widest block mb-1">PROGRES LOKASI TERKINI_</span>
+                            <span className="text-[8px] font-mono text-[#C5FF00] uppercase tracking-widest block mb-1">{trans('posisiLacak', lang)}_</span>
                             <p className="text-xs text-white/95 font-mono font-bold">
-                              {b.currentLocation || (b.status === 'SELESAI' ? 'Kargo telah berhasil dibongkar di tujuan.' : 'Armada sedang berangkat, menunggu pembaruan lokasi.')}
+                              {b.currentLocation || (b.status === 'SELESAI' ? (lang === 'id' ? 'Kargo telah berhasil dibongkar di tujuan.' : 'Cargo successfully discharged at facility.') : (lang === 'id' ? 'Armada sedang berangkat, menunggu pembaruan lokasi.' : 'Carrier crew in transit, pending telemetry signal.'))}
                             </p>
                           </div>
                         )}
@@ -516,7 +525,7 @@ export default function DashboardCustomer({
                       {/* Right: Pricing, Status & Quick actions */}
                       <div className="flex md:flex-col items-end justify-between w-full md:w-auto h-full border-t md:border-t-0 border-white/10 pt-4 md:pt-0 gap-4">
                         <div className="text-right">
-                          <p className="text-[10px] font-mono text-white/40 uppercase tracking-wider">KONTRAK FLAT_</p>
+                          <p className="text-[10px] font-mono text-white/40 uppercase tracking-wider">{lang === 'id' ? 'KONTRAK FIXED_' : 'FLAT CONTRACT_'}</p>
                           <p className="text-base font-black text-[#C5FF00] font-mono">{b.amount}</p>
                         </div>
 
@@ -529,15 +538,15 @@ export default function DashboardCustomer({
                                 ? 'bg-indigo-950/30 text-indigo-400 border-indigo-500/30' 
                                 : 'bg-amber-950/30 text-[#C5FF00] border-[#C5FF00]/30'
                           }`}>
-                            {b.status}
+                            {b.status === 'MENUNGGU' ? trans('statusMenunggu', lang) : b.status === 'DALAM PERJALANAN' ? trans('statusDalamPerjalanan', lang) : trans('statusSelesai', lang)}
                           </span>
 
                           {/* Allow cancel if WAITING MENUNGGU */}
                           {b.status === 'MENUNGGU' && (
                             <button
                               onClick={() => onDeleteBooking(b.id)}
-                              className="p-1.5 text-red-400 hover:bg-red-950/50 hover:text-red-300 border border-transparent hover:border-red-900/30 rounded-none transition-all cursor-pointer"
-                              title="Batalkan Booking"
+                              className="p-1.5 text-red-400 hover:bg-red-950/50 hover:text-red-300 border border-transparent hover:border-red-900/30 rounded-none transition-all cursor-pointer bg-transparent"
+                              title={lang === 'id' ? 'Batalkan Booking' : 'Cancel Booking'}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>

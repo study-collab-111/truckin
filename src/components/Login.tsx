@@ -16,14 +16,18 @@ import {
 } from 'lucide-react';
 import { AppView, Account } from '../types';
 import { authenticateAccount } from '../lib/firebase';
+import { Language, trans } from '../lib/translations';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface LoginProps {
   onNavigate: (view: AppView) => void;
   setUserMode: (mode: 'customer' | 'partner' | 'admin') => void;
   onLoginSuccess: (user: Account) => void;
+  lang: Language;
+  onSetLang: (lang: Language) => void;
 }
 
-export default function Login({ onNavigate, setUserMode, onLoginSuccess }: LoginProps) {
+export default function Login({ onNavigate, setUserMode, onLoginSuccess, lang, onSetLang }: LoginProps) {
   const [role, setRole] = useState<'customer' | 'partner'>('customer');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,7 +37,7 @@ export default function Login({ onNavigate, setUserMode, onLoginSuccess }: Login
   const handleLoginSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError('E-mail dan password wajib diisi.');
+      setError(lang === 'id' ? 'E-mail dan password wajib diisi.' : 'Email and password are required.');
       return;
     }
     
@@ -43,28 +47,25 @@ export default function Login({ onNavigate, setUserMode, onLoginSuccess }: Login
       const account = await authenticateAccount(email, password, role);
       if (account) {
         onLoginSuccess(account);
-        setUserMode(role);
-        if (role === 'customer') {
-          onNavigate('dashboard-customer');
-        } else {
-          onNavigate('dashboard-partner');
-        }
+        setUserMode(role === 'customer' ? 'customer' : 'partner');
+        onNavigate(role === 'customer' ? 'dashboard-customer' : 'dashboard-partner');
       } else {
-        setError('Otentikasi Gagal: E-mail atau kata sandi Anda salah, atau peran pilihan tidak cocok.');
+        setError(trans('kredensialSalah', lang));
       }
-    } catch (err) {
-      setError('Terjadi kesalahan koneksi server saat memverifikasi akun.');
+    } catch (e: any) {
+      setError(trans('errorServer', lang));
+      console.error(e);
     } finally {
       setLoading(false);
     }
   };
 
-  const demoLogin = (selectedRole: 'customer' | 'partner') => {
-    setUserMode(selectedRole);
-    if (selectedRole === 'customer') {
+  const demoLogin = (target: 'customer' | 'partner') => {
+    setError('');
+    if (target === 'customer') {
       const demoCust: Account = {
         email: 'alex.rivera@globalstore.id',
-        name: 'Alex Rivera (PT GlobalStore Indonesia)',
+        name: 'ALEX RIVERA_',
         role: 'customer',
         phoneNumber: '08123456789',
         city: 'Jakarta Barat'
@@ -76,7 +77,7 @@ export default function Login({ onNavigate, setUserMode, onLoginSuccess }: Login
     } else {
       const demoPart: Account = {
         email: 'samsul.arifin@trukinkarsa.com',
-        name: 'Samsul Arifin',
+        name: 'SAMSUL ARIFIN_',
         role: 'partner',
         phoneNumber: '081398765432',
         plateNumber: 'B 9821 TKI',
@@ -99,23 +100,27 @@ export default function Login({ onNavigate, setUserMode, onLoginSuccess }: Login
           className="flex items-center gap-2 text-white/60 hover:text-[#C5FF00] font-black text-xs uppercase tracking-widest transition-all cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          Kembali ke Beranda
+          {trans('kembaliBeranda', lang)}
         </button>
-        <div className="text-xl font-black tracking-tighter uppercase select-none">
-          TRUKIN<span className="text-[#C5FF00]">_</span>
+
+        <div className="flex items-center gap-4">
+          <LanguageSwitcher currentLang={lang} onSetLang={onSetLang} />
+          <div className="text-xl font-black tracking-tighter uppercase select-none">
+            TRUKIN<span className="text-[#C5FF00]">_</span>
+          </div>
         </div>
       </div>
 
       {/* Login Box */}
-      <div className="flex-1 flex items-center justify-center max-w-md mx-auto w-full">
+      <div className="flex-1 flex items-center justify-center max-w-sm mx-auto w-full">
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           className="bg-[#121212] p-10 rounded-none border border-white/10 w-full"
         >
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-black uppercase tracking-tight text-white mb-2">OTENTIKASI MASUK_</h2>
-            <p className="text-white/60 text-xs uppercase font-mono tracking-wider">Silakan isi kredensial akun Anda</p>
+            <h2 className="text-2xl font-black uppercase tracking-tight text-white mb-2">{trans('otentikasiMasuk', lang)}</h2>
+            <p className="text-white/60 text-xs uppercase font-mono tracking-wider">{trans('kredensialSesuai', lang)}</p>
           </div>
 
           {/* Role selection tab */}
@@ -129,7 +134,7 @@ export default function Login({ onNavigate, setUserMode, onLoginSuccess }: Login
               }`}
             >
               <User className="w-4 h-4" />
-              Pelanggan
+              {trans('pelanggan', lang)}
             </button>
             <button
               onClick={() => { setRole('partner'); setError(''); }}
@@ -140,7 +145,7 @@ export default function Login({ onNavigate, setUserMode, onLoginSuccess }: Login
               }`}
             >
               <Truck className="w-4 h-4" />
-              Mitra Crew
+              {trans('mitraCrew', lang)}
             </button>
           </div>
 
@@ -153,7 +158,7 @@ export default function Login({ onNavigate, setUserMode, onLoginSuccess }: Login
 
           <form onSubmit={handleLoginSubmit} className="space-y-6">
             <div>
-              <label className="block text-xs font-mono tracking-wider uppercase text-white/60 mb-2">Alamat E-mail</label>
+              <label className="block text-xs font-mono tracking-wider uppercase text-white/60 mb-2">{trans('emailAddress', lang)}</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                 <input
@@ -168,8 +173,8 @@ export default function Login({ onNavigate, setUserMode, onLoginSuccess }: Login
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="text-xs font-mono tracking-wider uppercase text-white/60">Kata Sandi</label>
-                <a href="#" className="text-xs font-mono text-[#C5FF00] hover:underline uppercase">Sandi Lupa?</a>
+                <label className="text-xs font-mono tracking-wider uppercase text-white/60">{trans('password', lang)}</label>
+                <a href="#" className="text-xs font-mono text-[#C5FF00] hover:underline uppercase">{lang === 'id' ? 'Lupa Sandi?' : 'Forgot?'}</a>
               </div>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
@@ -188,39 +193,39 @@ export default function Login({ onNavigate, setUserMode, onLoginSuccess }: Login
               disabled={loading}
               className={`w-full bg-[#C5FF00] text-black py-4.5 rounded-none font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex justify-center items-center gap-2 cursor-pointer mt-8 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {loading ? 'MEMVERIFIKASI LOG IN...' : 'UJI SISTEM MASUK SECURE'}
+              {loading ? (lang === 'id' ? 'MEMVERIFIKASI...' : 'VERIFYING...') : trans('secureLoginBtn', lang)}
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
           {/* Quick Demo Logins block */}
           <div className="mt-8 pt-8 border-t border-white/10 text-center">
-            <span className="text-[10px] uppercase tracking-[0.2em] font-mono text-white/40 block mb-4">Akses Uji Coba Cepat (Direct Bypass)</span>
+            <span className="text-[10px] uppercase tracking-[0.2em] font-mono text-white/40 block mb-4">{lang === 'id' ? 'Akses Uji Coba Cepat (Direct Bypass)' : 'QUICK ACCESS BYPASS LOGINS'}</span>
             <div className="grid grid-cols-2 gap-3">
               <button 
                 onClick={() => demoLogin('customer')}
                 className="bg-white/5 border border-white/10 hover:border-[#C5FF00] text-white font-mono py-3 px-4 rounded-none text-[10px] uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <User className="w-3.5 h-3.5 text-[#C5FF00]" />
-                Demo User
+                {trans('demoCustomerBtn', lang)}
               </button>
               <button 
                 onClick={() => demoLogin('partner')}
                 className="bg-white/5 border border-white/10 hover:border-[#C5FF00] text-white font-mono py-3 px-4 rounded-none text-[10px] uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <Truck className="w-3.5 h-3.5 text-[#C5FF00]" />
-                Demo Driver
+                {trans('demoDriverBtn', lang)}
               </button>
             </div>
           </div>
 
           <p className="text-center text-xs text-white/50 mt-8 font-mono">
-            BELUM MEMILIKI AKUN?{' '}
+            {lang === 'id' ? 'BELUM MEMILIKI AKUN?' : "DON'T HAVE ACCOUNT?"}{' '}
             <button 
               onClick={() => onNavigate(role === 'customer' ? 'register-customer' : 'register-partner')} 
               className="text-[#C5FF00] font-black hover:underline cursor-pointer uppercase font-sans text-xs tracking-wider ml-1"
             >
-              DAFTAR SEKARANG
+              {lang === 'id' ? 'DAFTAR SEKARANG' : 'SIGN UP NOW'}
             </button>
           </p>
 

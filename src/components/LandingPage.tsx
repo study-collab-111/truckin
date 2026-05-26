@@ -15,12 +15,16 @@ import {
   Compass
 } from 'lucide-react';
 import { AppView } from '../types';
+import { Language, trans } from '../lib/translations';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface LandingPageProps {
   onNavigate: (view: AppView) => void;
+  lang: Language;
+  onSetLang: (lang: Language) => void;
 }
 
-export default function LandingPage({ onNavigate }: LandingPageProps) {
+export default function LandingPage({ onNavigate, lang, onSetLang }: LandingPageProps) {
   return (
     <div className="bg-[#0A0A0A] text-white font-sans antialiased min-h-screen selection:bg-[#C5FF00] selection:text-black">
       {/* Navigation */}
@@ -37,31 +41,33 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             
             {/* Navigation links */}
             <nav className="hidden md:flex gap-8 items-center text-xs uppercase tracking-[0.2em] font-medium text-white/60">
-              <a href="#solusi" className="hover:text-white transition-colors">Solusi</a>
-              <a href="#armada" className="hover:text-white transition-colors">Armada</a>
-              <a href="#tentang-kami" className="hover:text-white transition-colors">Tentang Kami</a>
+              <a href="#solusi" className="hover:text-white transition-colors">{trans('solusi', lang)}</a>
+              <a href="#armada" className="hover:text-white transition-colors">{trans('armada', lang)}</a>
+              <a href="#tentang-kami" className="hover:text-white transition-colors">{trans('tentangKami', lang)}</a>
               <button 
                 onClick={() => onNavigate('admin-login')} 
-                className="hover:text-white transition-colors flex items-center gap-1.5 opacity-80 hover:opacity-100 uppercase"
+                className="hover:text-white transition-colors flex items-center gap-1.5 opacity-80 hover:opacity-100 uppercase cursor-pointer"
               >
                 <Lock className="w-3.5 h-3.5 text-[#C5FF00]" />
-                Admin
+                {trans('admin', lang)}
               </button>
             </nav>
           </div>
 
           <div className="flex items-center gap-4">
+            <LanguageSwitcher currentLang={lang} onSetLang={onSetLang} />
+            
             <button 
               onClick={() => onNavigate('login')} 
               className="hidden md:block px-4 py-2 text-xs uppercase tracking-wider font-bold text-white/80 hover:text-white transition-all cursor-pointer"
             >
-              Akun Saya
+              {trans('akunSaya', lang)}
             </button>
             <button 
               onClick={() => onNavigate('register-customer')} 
               className="bg-[#C5FF00] text-black hover:bg-white px-6 py-2.5 rounded-none font-black text-xs uppercase tracking-widest transition-all cursor-pointer"
             >
-              Mulai Sekarang
+              {trans('mulaiSekarang', lang)}
             </button>
           </div>
         </div>
@@ -91,16 +97,16 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             >
               <div className="inline-flex items-center gap-2 bg-white/5 px-4 py-1.5 border border-white/10 mb-8 rounded-none">
                 <span className="flex h-2 w-2 rounded-full bg-[#C5FF00] animate-pulse"></span>
-                <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-white/60">Ekosistem Logistik Terpercaya</span>
+                <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-white/60">{trans('trustedEcosystem', lang)}</span>
               </div>
               
-              <h1 className="text-5xl md:text-8xl font-black tracking-[-0.04em] uppercase leading-[0.85] mb-8">
-                LOGISTIK <span className="text-[#C5FF00]">DIGITAL</span> &amp; <br />
-                PEMESANAN <span className="underline decoration-white/20 underline-offset-8">TRUK</span>.
+              <h1 className="text-5xl md:text-8xl font-black tracking-[-0.04em] uppercase leading-[0.85] mb-8 animate-fade-in">
+                {trans('heroTitleWhite1', lang)} <span className="text-[#C5FF00]">{trans('heroTitleNeon', lang)}</span> &amp; <br />
+                {trans('heroTitleWhite2', lang)} <span className="underline decoration-white/20 underline-offset-8 text-[#C5FF00]">{trans('heroTitleNeon2', lang)}</span>.
               </h1>
               
               <p className="text-base md:text-lg opacity-70 mb-12 max-w-xl leading-relaxed border-l-2 border-[#C5FF00] pl-6 font-sans">
-                Efisiensi logistik untuk dunia modern. Terhubung dengan operator terverifikasi, kelola armada secara real-time, dan kembangkan bisnis Anda bersama platform digital TrukIn.
+                {trans('heroSubtitle', lang)}
               </p>
               
               <div className="flex flex-wrap gap-5">
@@ -108,14 +114,14 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
                   onClick={() => onNavigate('register-customer')}
                   className="bg-[#C5FF00] text-black px-10 py-4.5 rounded-none font-black text-sm uppercase tracking-widest hover:bg-white transition-all flex items-center gap-3 cursor-pointer"
                 >
-                  Pesan Truk
+                  {trans('pesanTruk', lang)}
                   <ArrowRight className="w-4 h-4 animate-bounce-horizontal" />
                 </button>
                 <button 
                   onClick={() => onNavigate('register-partner')}
                   className="bg-transparent border border-white/20 text-white hover:border-white px-10 py-4.5 rounded-none font-black text-sm uppercase tracking-widest transition-all cursor-pointer"
                 >
-                  Kemitraan Armada
+                  {trans('kemitraanArmada', lang)}
                 </button>
               </div>
 
@@ -123,15 +129,15 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
               <div className="mt-16 flex items-center gap-12 border-t border-white/15 pt-10">
                 <div>
                   <p className="text-3xl md:text-4xl font-extrabold font-mono text-white tracking-tight">12RB+</p>
-                  <p className="text-[9px] text-white/40 uppercase tracking-[0.2em] mt-1 font-mono">Truk Aktif</p>
+                  <p className="text-[9px] text-white/40 uppercase tracking-[0.2em] mt-1 font-mono">{trans('trukAktif', lang)}</p>
                 </div>
                 <div>
                   <p className="text-3xl md:text-4xl font-extrabold font-mono text-[#C5FF00] tracking-tight">99.8%</p>
-                  <p className="text-[9px] text-white/40 uppercase tracking-[0.2em] mt-1 font-mono">Tepat Waktu</p>
+                  <p className="text-[9px] text-white/40 uppercase tracking-[0.2em] mt-1 font-mono">{trans('tepatWaktu', lang)}</p>
                 </div>
                 <div>
                   <p className="text-3xl md:text-4xl font-extrabold font-mono text-white tracking-tight">4.9/5</p>
-                  <p className="text-[9px] text-white/40 uppercase tracking-[0.2em] mt-1 font-mono">Rating Partner</p>
+                  <p className="text-[9px] text-white/40 uppercase tracking-[0.2em] mt-1 font-mono">{trans('ratingPartner', lang)}</p>
                 </div>
               </div>
             </motion.div>
@@ -160,8 +166,8 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
         <section id="solusi" className="py-24 border-b border-white/10 relative">
           <div className="max-w-7xl mx-auto px-6">
             <div className="mb-12">
-              <span className="text-xs font-mono text-[#C5FF00] tracking-[0.3em] uppercase block mb-2">PILIH DIVISI</span>
-              <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight">KONEKTIVITAS DUA SISI_</h2>
+              <span className="text-xs font-mono text-[#C5FF00] tracking-[0.3em] uppercase block mb-2">{trans('pilihDivisi', lang)}</span>
+              <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight">{trans('konektivitasDuaSisi', lang)}</h2>
             </div>
             
             <div className="grid md:grid-cols-2 gap-10">
@@ -175,17 +181,17 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
                 <div className="absolute top-6 right-6 font-mono text-[10px] text-white/30">DIV_SHIPPER</div>
                 <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white px-4 py-1.5 font-mono text-[10px] tracking-wider mb-8">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#C5FF00]" />
-                  UNTUK PENGIRIM CARGO
+                  {trans('untukPengirim', lang)}
                 </div>
-                <h3 className="text-3xl font-black mb-4 uppercase tracking-tight">SAYA INGIN MENGIRIM KARGO</h3>
+                <h3 className="text-3xl font-black mb-4 uppercase tracking-tight">{trans('sayaInginKirim', lang)}</h3>
                 <p className="text-white/60 mb-10 text-sm leading-relaxed">
-                  Dapatkan penawaran instan transparan, pelacakan armada real-time, dan pengemudi terverifikasi jaminan keamanan untuk pengiriman bisnis Anda.
+                  {trans('shipperDesc', lang)}
                 </p>
                 <button 
                   onClick={() => onNavigate('login')}
                   className="w-full bg-[#C5FF00] text-black py-4 font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex justify-center items-center gap-2 cursor-pointer"
                 >
-                  MASUK SEBAGAI PELANGGAN
+                  {trans('masukPelanggan', lang)}
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </motion.div>
@@ -199,17 +205,17 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
                 <div className="absolute top-6 right-6 font-mono text-[10px] text-white/30">DIV_CARRIER</div>
                 <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-[#C5FF00] px-4 py-1.5 font-mono text-[10px] tracking-wider mb-8">
                   <Compass className="w-3.5 h-3.5 text-[#C5FF00]" />
-                  UNTUK PEMBAWA MUATAN
+                  {trans('untukCarrier', lang)}
                 </div>
-                <h3 className="text-3xl font-black mb-4 uppercase tracking-tight">SAYA MEMILIKI ARMADA TRUK</h3>
+                <h3 className="text-3xl font-black mb-4 uppercase tracking-tight">{trans('sayaMilikiTruk', lang)}</h3>
                 <p className="text-white/60 mb-10 text-sm leading-relaxed">
-                  Akses jaringan pengirim korporat berskala nasional, optimalkan utilitas rute Anda, dan cairkan pembayaran lebih cepat via sistem kami.
+                  {trans('carrierDesc', lang)}
                 </p>
                 <button 
                   onClick={() => onNavigate('register-partner')}
                   className="w-full border-2 border-white text-white py-4 font-black text-xs uppercase tracking-widest hover:bg-[#C5FF00] hover:text-black hover:border-transparent transition-all flex justify-center items-center gap-2 cursor-pointer"
                 >
-                  DAFTAR KEMITRAAN DRIVER
+                  {trans('daftarKemitraan', lang)}
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </motion.div>
@@ -241,8 +247,8 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
                       <Truck className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="font-black text-xs uppercase tracking-wider text-white">EFISIENSI MAKSIMAL</p>
-                      <p className="text-[10px] font-mono text-white/50">MUTU &amp; DISIPLIN KERJA</p>
+                      <p className="font-black text-xs uppercase tracking-wider text-white">{trans('efisiensiMaksimal', lang)}</p>
+                      <p className="text-[10px] font-mono text-white/50">{trans('mutuKerja', lang)}</p>
                     </div>
                   </div>
                 </div>
@@ -250,21 +256,21 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
 
               {/* Text info panel */}
               <div className="flex flex-col items-start">
-                <span className="font-mono text-xs tracking-[0.3em] text-[#C5FF00] mb-4 uppercase bg-white/5 px-4 py-1.5 border border-white/10">MANIFESTO_</span>
-                <h2 className="text-4xl md:text-5xl font-black text-white mb-6 uppercase tracking-tight leading-none">MENGHUBUNGKAN LOGISTIK, MEMPERCEPAT PERTUMBUHAN</h2>
+                <span className="font-mono text-xs tracking-[0.3em] text-[#C5FF00] mb-4 uppercase bg-white/5 px-4 py-1.5 border border-white/10">{trans('manifesto', lang)}</span>
+                <h2 className="text-4xl md:text-5xl font-black text-white mb-6 uppercase tracking-tight leading-none">{trans('manifestoTitle', lang)}</h2>
                 <div className="h-1 w-24 bg-[#C5FF00] mb-8"></div>
                 
                 <div className="space-y-6 text-white/70 leading-relaxed text-sm">
-                  <p>Selamat datang di TrukIn, platform logistik digital berkinerja tinggi yang dirancang khusus untuk menyederhanakan cara Anda mendistribusikan barang berskala kecil hingga muatan kontainer berat.</p>
-                  <p>TrukIn hadir memotong proses birokrasi tradisional, mengintegrasikan pengirim langsung dengan pengemudi armada terverifikasi di seluruh Indonesia. Dengan sistem lacak real-time, kami meniadakan kecemasan dan menghadirkan kepastian.</p>
-                  <p>Filosofi kami adalah menghadirkan transparansi harga mutlak serta ketersediaan armada terjamin. Kami mendemokrasikan ranah logisktik nasional demi kemajuan perekonomian Indonesia Timur hingga Barat.</p>
+                  <p>{trans('manifestoBody1', lang)}</p>
+                  <p>{trans('manifestoBody2', lang)}</p>
+                  <p>{trans('manifestoBody3', lang)}</p>
                 </div>
                 
                 <button 
                   onClick={() => onNavigate('register-customer')}
                   className="mt-8 flex items-center gap-2 text-[#C5FF00] font-black text-xs uppercase tracking-widest hover:text-white transition-all cursor-pointer"
                 >
-                  PELAJARI SELENGKAPNYA 
+                  {trans('pelajariSelengkapnya', lang)} 
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -279,14 +285,14 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             
             <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
               <div>
-                <p className="text-xs font-mono tracking-[0.30em] text-[#C5FF00] mb-3">KAPABILITAS KAMI_</p>
-                <h2 className="text-4xl font-black uppercase tracking-tight text-white">ARMADA TERVERIFIKASI &amp; AKTIF</h2>
+                <p className="text-xs font-mono tracking-[0.30em] text-[#C5FF00] mb-3">{trans('kapabilitasKami', lang)}</p>
+                <h2 className="text-4xl font-black uppercase tracking-tight text-white">{trans('armadaAktif', lang)}</h2>
               </div>
               <button 
                 onClick={() => onNavigate('register-customer')}
-                className="text-xs font-mono tracking-widest text-white/60 hover:text-[#C5FF00] flex items-center gap-2 transition-all uppercase"
+                className="text-xs font-mono tracking-widest text-white/60 hover:text-[#C5FF00] flex items-center gap-2 transition-all uppercase cursor-pointer"
               >
-                Lihat semua tipe kendaraan
+                {trans('lihatSemuaTipe', lang)}
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -303,11 +309,11 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
                   />
                 </div>
                 <div className="p-6">
-                  <h5 className="text-base font-black uppercase text-white mb-2">Semi-Trailer Berat</h5>
+                  <h5 className="text-base font-black uppercase text-white mb-2">{trans('semiTrailer', lang)}</h5>
                   <p className="text-white/50 text-xs mb-6 flex items-center gap-1.5 font-mono">
                     <TrendingUp className="w-3.5 h-3.5 text-[#C5FF00]" /> 25 - 40 TON CAPACITY
                   </p>
-                  <span className="text-[9px] font-mono bg-white/5 border border-white/10 text-[#C5FF00] font-bold px-3 py-1.5 rounded-none uppercase tracking-wider block text-center">ANTAR PROVINSI</span>
+                  <span className="text-[9px] font-mono bg-white/5 border border-white/10 text-[#C5FF00] font-bold px-3 py-1.5 rounded-none uppercase tracking-wider block text-center">{trans('antarProvinsi', lang)}</span>
                 </div>
               </div>
 
@@ -321,11 +327,11 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
                   />
                 </div>
                 <div className="p-6">
-                  <h5 className="text-base font-black uppercase text-white mb-2">Truk Box Menengah</h5>
+                  <h5 className="text-base font-black uppercase text-white mb-2">{trans('trukBox', lang)}</h5>
                   <p className="text-white/50 text-xs mb-6 flex items-center gap-1.5 font-mono">
                     <TrendingUp className="w-3.5 h-3.5 text-[#C5FF00]" /> 5 - 15 TON CAPACITY
                   </p>
-                  <span className="text-[9px] font-mono bg-white/5 border border-white/10 text-white font-bold px-3 py-1.5 rounded-none uppercase tracking-wider block text-center">PENGIRIMAN KOTA</span>
+                  <span className="text-[9px] font-mono bg-white/5 border border-white/10 text-white font-bold px-3 py-1.5 rounded-none uppercase tracking-wider block text-center">{trans('pengirimanKota', lang)}</span>
                 </div>
               </div>
 
@@ -339,11 +345,11 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
                   />
                 </div>
                 <div className="p-6">
-                  <h5 className="text-base font-black uppercase text-white mb-2">Flatbed Heavy</h5>
+                  <h5 className="text-base font-black uppercase text-white mb-2">{trans('flatbedHeavy', lang)}</h5>
                   <p className="text-white/50 text-xs mb-6 flex items-center gap-1.5 font-mono">
                     <TrendingUp className="w-3.5 h-3.5 text-[#C5FF00]" /> 20 - 30 TON CAPACITY
                   </p>
-                  <span className="text-[9px] font-mono bg-white/5 border border-white/10 text-white font-bold px-3 py-1.5 rounded-none uppercase tracking-wider block text-center">SEKTOR KONSTRUKSI</span>
+                  <span className="text-[9px] font-mono bg-white/5 border border-white/10 text-white font-bold px-3 py-1.5 rounded-none uppercase tracking-wider block text-center">{trans('sektorKonstruksi', lang)}</span>
                 </div>
               </div>
 
@@ -357,11 +363,11 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
                   />
                 </div>
                 <div className="p-6">
-                  <h5 className="text-base font-black uppercase text-white mb-2">Truk Berpendingin</h5>
+                  <h5 className="text-base font-black uppercase text-white mb-2">{trans('trukPendingin', lang)}</h5>
                   <p className="text-white/50 text-xs mb-6 flex items-center gap-1.5 font-mono">
                     <TrendingUp className="w-3.5 h-3.5 text-[#C5FF00]" /> 10 - 20 TON CAPACITY
                   </p>
-                  <span className="text-[9px] font-mono bg-white/5 border border-white/10 text-white font-bold px-3 py-1.5 rounded-none uppercase tracking-wider block text-center">FROZEN FOODS COLD CHAIN</span>
+                  <span className="text-[9px] font-mono bg-white/5 border border-white/10 text-white font-bold px-3 py-1.5 rounded-none uppercase tracking-wider block text-center">{trans('frozenFoods', lang)}</span>
                 </div>
               </div>
 
@@ -380,22 +386,22 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
               </div>
 
               <div className="relative z-10 max-w-2xl mx-auto">
-                <h2 className="text-4xl md:text-6xl font-black mb-6 uppercase tracking-tight leading-none">REVOLUSI LOGISTIK DI TANGAN ANDA.</h2>
+                <h2 className="text-4xl md:text-6xl font-black mb-6 uppercase tracking-tight leading-none">{trans('revolusiLogistik', lang)}</h2>
                 <p className="text-white/70 text-sm mb-12 leading-relaxed">
-                  Bergabunglah dengan ribuan pelaku usaha dan penyedia transportasi cerdas yang mengoptimalkan utilisasi armada harian bersama TrukIn.
+                  {trans('revolusiDesc', lang)}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
                   <button 
                     onClick={() => onNavigate('register-customer')}
                     className="bg-[#C5FF00] text-black px-12 py-5 font-black text-xs uppercase tracking-widest hover:bg-white transition-all cursor-pointer"
                   >
-                    MULAI SEKARANG
+                    {trans('mulaiSekarang', lang)}
                   </button>
                   <button 
                     onClick={() => onNavigate('register-partner')}
                     className="border border-white/20 text-white px-12 py-5 font-black text-xs uppercase tracking-widest hover:border-white transition-all cursor-pointer"
                   >
-                    KEMITRAAN ARMADA
+                    {trans('kemitraanArmada', lang)}
                   </button>
                 </div>
               </div>
@@ -420,10 +426,10 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             </div>
             
             <div className="flex flex-wrap justify-center gap-8 text-[10px] uppercase tracking-widest font-mono text-white/50">
-              <a href="#" className="hover:text-white transition-colors">Ketentuan Layanan</a>
-              <a href="#" className="hover:text-white transition-colors">Kebijakan Privasi</a>
-              <a href="#" className="hover:text-white transition-colors">Karir</a>
-              <a href="#" className="hover:text-white transition-colors">Bantuan Syarat</a>
+              <a href="#" className="hover:text-white transition-colors">{trans('solusi', lang)}</a>
+              <a href="#" className="hover:text-white transition-colors">{trans('armada', lang)}</a>
+              <a href="#" className="hover:text-white transition-colors">{trans('tentangKami', lang)}</a>
+              <a href="#" className="hover:text-white transition-colors">{trans('admin', lang)}</a>
             </div>
           </div>
         </div>

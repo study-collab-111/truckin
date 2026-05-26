@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { AppView, Booking, Account } from './types';
+import { Language } from './lib/translations';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import AdminLogin from './components/AdminLogin';
@@ -26,6 +27,16 @@ export default function App() {
   const [currentView, setCurrentView] = useState<AppView>('landing');
   const [userMode, setUserMode] = useState<'customer' | 'partner' | 'admin'>('customer');
   const [currentUser, setCurrentUser] = useState<Account | null>(null);
+  
+  // Track active language ('id' | 'en')
+  const [lang, setLang] = useState<Language>(() => {
+    return (localStorage.getItem('trukin_lang') as Language) || 'id';
+  });
+
+  const handleSetLang = (newLang: Language) => {
+    setLang(newLang);
+    localStorage.setItem('trukin_lang', newLang);
+  };
 
   // Coordinated shared bookings state - initialized with 2 requested dummy data
   const [bookings, setBookings] = useState<Booking[]>([
@@ -148,19 +159,19 @@ export default function App() {
   const renderActiveView = () => {
     switch (currentView) {
       case 'landing':
-        return <LandingPage onNavigate={navigateTo} />;
+        return <LandingPage onNavigate={navigateTo} lang={lang} onSetLang={handleSetLang} />;
       
       case 'login':
-        return <Login onNavigate={navigateTo} setUserMode={setUserMode} onLoginSuccess={setCurrentUser} />;
+        return <Login onNavigate={navigateTo} setUserMode={setUserMode} onLoginSuccess={setCurrentUser} lang={lang} onSetLang={handleSetLang} />;
       
       case 'admin-login':
-        return <AdminLogin onNavigate={navigateTo} setUserMode={setUserMode} onLoginSuccess={setCurrentUser} />;
+        return <AdminLogin onNavigate={navigateTo} setUserMode={setUserMode} onLoginSuccess={setCurrentUser} lang={lang} onSetLang={handleSetLang} />;
       
       case 'register-customer':
-        return <RegisterCustomer onNavigate={navigateTo} setUserMode={setUserMode} />;
+        return <RegisterCustomer onNavigate={navigateTo} setUserMode={setUserMode} lang={lang} onSetLang={handleSetLang} />;
       
       case 'register-partner':
-        return <RegisterPartner onNavigate={navigateTo} setUserMode={setUserMode} />;
+        return <RegisterPartner onNavigate={navigateTo} setUserMode={setUserMode} lang={lang} onSetLang={handleSetLang} />;
       
       case 'dashboard-customer':
         return (
@@ -170,6 +181,8 @@ export default function App() {
             onAddBooking={handleAddBooking}
             onDeleteBooking={handleDeleteBooking}
             onNavigate={navigateTo}
+            lang={lang}
+            onSetLang={handleSetLang}
           />
         );
       
@@ -182,6 +195,8 @@ export default function App() {
             onDeliveredBooking={handleDeliveredBooking}
             onUpdateLocation={handleUpdateBookingLocation}
             onNavigate={navigateTo}
+            lang={lang}
+            onSetLang={handleSetLang}
           />
         );
       
@@ -193,11 +208,13 @@ export default function App() {
             onUpdateBookingStatus={handleUpdateBookingStatus}
             onDeleteBooking={handleDeleteBooking}
             onNavigate={navigateTo}
+            lang={lang}
+            onSetLang={handleSetLang}
           />
         );
       
       default:
-        return <LandingPage onNavigate={navigateTo} />;
+        return <LandingPage onNavigate={navigateTo} lang={lang} onSetLang={handleSetLang} />;
     }
   };
 

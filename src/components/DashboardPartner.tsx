@@ -17,6 +17,8 @@ import {
   Play
 } from 'lucide-react';
 import { Booking, AppView, Account } from '../types';
+import { Language, trans } from '../lib/translations';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface DashboardPartnerProps {
   bookings: Booking[];
@@ -25,6 +27,8 @@ interface DashboardPartnerProps {
   onDeliveredBooking: (id: string) => void;
   onUpdateLocation: (id: string, location: string) => void;
   onNavigate: (view: AppView) => void;
+  lang: Language;
+  onSetLang: (lang: Language) => void;
 }
 
 export default function DashboardPartner({ 
@@ -33,7 +37,9 @@ export default function DashboardPartner({
   onAcceptBooking, 
   onDeliveredBooking,
   onUpdateLocation,
-  onNavigate 
+  onNavigate,
+  lang,
+  onSetLang
 }: DashboardPartnerProps) {
 
   // State to hold custom string input per active cargo tracking item
@@ -82,13 +88,14 @@ export default function DashboardPartner({
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
+            <LanguageSwitcher currentLang={lang} onSetLang={onSetLang} />
             <button 
               onClick={() => onNavigate('landing')}
-              className="flex items-center gap-1.5 text-xs font-mono tracking-wider text-white/60 hover:text-red-400 uppercase font-bold transition-all cursor-pointer"
+              className="flex items-center gap-1.5 text-xs font-mono tracking-wider text-white/60 hover:text-red-400 uppercase font-bold transition-all cursor-pointer bg-transparent border-0"
             >
               <LogOut className="w-4 h-4 text-red-500" />
-              Keluar Sesi
+              {trans('keluarSesi', lang)}
             </button>
           </div>
         </div>
@@ -117,7 +124,7 @@ export default function DashboardPartner({
                   Tel: {currentUser?.phoneNumber || '081398765432'}
                 </p>
                 <div className="flex items-center gap-2 mt-2 bg-[#C5FF00]/10 border border-[#C5FF00]/30 text-[#C5FF00] px-2.5 py-0.5 rounded-none text-[9px] w-fit font-mono font-bold uppercase tracking-wider">
-                  <ShieldCheck className="w-3.5 h-3.5" /> GOLDEN TIER PARTNER_
+                  <ShieldCheck className="w-3.5 h-3.5" /> {lang === 'id' ? 'MITRA VERIFIKASI EMAS_' : 'GOLDEN TIER PARTNER_'}
                 </div>
               </div>
             </div>
@@ -125,21 +132,21 @@ export default function DashboardPartner({
             {/* Stats list */}
             <div className="flex gap-4 md:gap-8 flex-wrap w-full md:w-auto">
               <div className="bg-black/50 border border-white/10 px-5 py-4 rounded-none flex-1 md:flex-initial min-w-[130px]">
-                <p className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em]">ACTIVE CARGO</p>
+                <p className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em]">{lang === 'id' ? 'MUATAN AKTIF' : 'ACTIVE CARGO'}</p>
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-2xl font-black text-[#C5FF00] font-mono">{currentRunningJobs.length}</span>
-                  <span className="text-[10px] text-white/40 uppercase font-mono">Job</span>
+                  <span className="text-[10px] text-white/40 uppercase font-mono">{lang === 'id' ? 'Kerjaan' : 'Jobs'}</span>
                 </div>
               </div>
               <div className="bg-black/50 border border-white/10 px-5 py-4 rounded-none flex-1 md:flex-initial min-w-[130px]">
-                <p className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em]">DELIVERED</p>
+                <p className="text-white/40 text-[9px] font-mono uppercase tracking-[0.2em]">{lang === 'id' ? 'TERKIRIM' : 'DELIVERED_LOG'}</p>
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-2xl font-black text-white font-mono">{earnings.count}</span>
-                  <span className="text-[10px] text-white/40 uppercase font-mono">Done</span>
+                  <span className="text-[10px] text-white/40 uppercase font-mono">{lang === 'id' ? 'Selesai' : 'Done'}</span>
                 </div>
               </div>
               <div className="bg-[#C5FF00] text-black px-6 py-4 rounded-none flex-1 md:flex-initial min-w-[190px]">
-                <p className="text-black/60 text-[9px] font-mono font-black uppercase tracking-[0.2em]">MY BALANCE CREDITS_</p>
+                <p className="text-black/60 text-[9px] font-mono font-black uppercase tracking-[0.2em]">{lang === 'id' ? 'PENDAPATAN DOMPET_' : 'MY BALANCE CREDITS_'}</p>
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-xl font-black font-mono text-black whitespace-nowrap">{earnings.formatted}</span>
                 </div>
@@ -158,16 +165,16 @@ export default function DashboardPartner({
                 <span className="text-[9px] font-mono text-[#C5FF00] uppercase tracking-[0.25em] block mb-1">REAL-TIME JOB MARKET_</span>
                 <h3 className="text-base font-black uppercase text-white tracking-tight flex items-center gap-2">
                   <Briefcase className="w-5 h-5 text-[#C5FF00]" />
-                  BURSA MUATAN REKENING TERBUKA_
+                  {trans('bursaMuatanDaftar', lang)}
                 </h3>
-                <p className="text-xs font-mono text-white/50">Cari, pilih, &amp; klaim kargo aktif terdekat yang siap diangkut</p>
+                <p className="text-xs font-mono text-white/50">{lang === 'id' ? 'Cari, pilih, & klaim kargo aktif terdekat yang siap diangkut' : 'Search, select, and claim active shipping cargos nearby'}</p>
               </div>
 
               {openCargos.length === 0 ? (
                 <div className="text-center py-16 border border-dashed border-white/10 rounded-none bg-black/40">
                   <Package className="w-10 h-10 text-white/20 mx-auto mb-3" />
-                  <p className="font-mono text-xs text-white/40 uppercase">BELUM ADA REKLAMASI MUATAN BARU</p>
-                  <p className="text-[10px] text-white/30 font-mono mt-1">Gunakan Demo Pelanggan untuk meluncurkan muatan baru.</p>
+                  <p className="font-mono text-xs text-white/40 uppercase">{lang === 'id' ? 'BELUM ADA MUATAN TERSEDIA' : 'NO CARGO LOADS AVAILABLE RIGHT NOW'}</p>
+                  <p className="text-[10px] text-white/30 font-mono mt-1">{lang === 'id' ? 'Gunakan portal Demo Pelanggan untuk menambah pesanan muatan baru.' : 'Use the Client Demo portal to post a cargo load contract.'}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -190,17 +197,19 @@ export default function DashboardPartner({
                           </div>
                         </div>
                         <div className="flex items-center gap-3 text-[9px] font-mono font-bold text-white/40 uppercase tracking-widest">
-                          <span className="border border-white/10 px-2 py-0.5 rounded-none bg-white/5">{job.truckType}</span>
+                          <span className="border border-white/10 px-2 py-0.5 rounded-none bg-white/5">
+                            {job.truckType === 'TRUK BOKS' ? (lang === 'id' ? 'TRUK BOKS' : 'BOX TRUCK') : job.truckType}
+                          </span>
                           <span>&bull;</span>
                           <span>{job.weight} TON</span>
                           <span>&bull;</span>
-                          <span className="text-[#C5FF00] font-black">{job.priority}</span>
+                          <span className="text-[#C5FF00] font-black">{job.priority === 'EKSPRES' ? (lang === 'id' ? 'EKSPRES' : 'EXPRESS') : (lang === 'id' ? 'STANDAR' : 'STANDARD')}</span>
                         </div>
                       </div>
 
                       <div className="flex md:flex-col items-end justify-between w-full md:w-auto border-t md:border-t-0 border-white/10 pt-4 md:pt-0 gap-4">
                         <div className="text-right font-mono">
-                          <p className="text-[9px] text-white/40 uppercase tracking-wider">DRV SHARE (85%)</p>
+                          <p className="text-[9px] text-white/40 uppercase tracking-wider">{lang === 'id' ? 'BAGIAN DRIVER (85%)' : 'DRIVER SHARE (85%)'}</p>
                           <p className="text-base font-black text-[#C5FF00]">
                             {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(
                               (parseInt(job.amount.replace(/[^0-9]/g, ''), 10) || 0) * 0.85
@@ -213,7 +222,7 @@ export default function DashboardPartner({
                           className="bg-[#C5FF00] hover:bg-white text-black text-xs font-black px-5 py-3 rounded-none cursor-pointer flex items-center gap-2 uppercase tracking-widest transition-all"
                         >
                           <Play className="w-3.5 h-3.5 fill-black" />
-                          AMBIL MUATAN
+                          {trans('ambilMuatanBtn', lang)}
                         </button>
                       </div>
                     </div>
@@ -232,16 +241,16 @@ export default function DashboardPartner({
                 <span className="text-[9px] font-mono text-indigo-400 uppercase tracking-widest block mb-1">IN-TRANSIT TASKS_</span>
                 <h3 className="text-base font-black uppercase tracking-tight text-white flex items-center gap-2">
                   <Truck className="w-5 h-5 text-[#C5FF00]" />
-                  JALUR ANGKUT AKTIF ({currentRunningJobs.length})_
+                  {lang === 'id' ? 'JALUR ANGKUT AKTIF' : 'ACTIVE CONVEYANCE ROUTE'} ({currentRunningJobs.length})_
                 </h3>
-                <p className="text-xs font-mono text-white/50">Perbarui posisi Anda secara berkala lewat laporan tempat berikut.</p>
+                <p className="text-xs font-mono text-white/50">{lang === 'id' ? 'Perbarui posisi Anda secara berkala lewat laporan tempat berikut.' : 'Regularly keep shippers informed by writing location status below.'}</p>
               </div>
 
               {currentRunningJobs.length === 0 ? (
                 <div className="text-center py-12 border border-dashed border-white/10 rounded-none bg-black/40">
                   <Compass className="w-8 h-8 text-white/20 mx-auto mb-2" />
-                  <p className="font-mono text-xs text-white/40 uppercase">TIDAK ADA MUATAN KONTRAK AKTIF</p>
-                  <p className="text-[10px] text-white/30 font-mono mt-1">Gunakan Bursa Muatan untuk mengambil kargo!</p>
+                  <p className="font-mono text-xs text-white/40 uppercase">{lang === 'id' ? 'TIDAK ADA MUATAN KONTRAK AKTIF' : 'NO CARGO CONTRACT COMMITTED'}</p>
+                  <p className="text-[10px] text-white/30 font-mono mt-1">{lang === 'id' ? 'Gunakan Bursa Muatan untuk mengambil kargo!' : 'Claim loads from the cargo marketplace to get started!'}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -261,12 +270,12 @@ export default function DashboardPartner({
                       {/* Driver input location text (New active telemetry) */}
                       <div className="bg-black/60 p-4 border border-indigo-500/20 space-y-2">
                         <label className="block text-[8px] font-mono uppercase tracking-widest text-[#C5FF00] font-black">
-                          INPUT POSISI LOKASI TERKINI_
+                          {lang === 'id' ? 'INPUT POSISI LOKASI TERKINI_' : 'SUBMIT CURRENT TRANSIT LOCATION_'}
                         </label>
                         <div className="flex flex-col sm:flex-row gap-2">
                           <input 
                             type="text"
-                            placeholder="Contoh: Bongkar muat / Exit Tol Cikampek"
+                            placeholder={lang === 'id' ? "Contoh: Bongkar muat / Exit Tol Cikampek" : "e.g., Transit / Highway Km 52 Rest Spot"}
                             value={locations[job.id] !== undefined ? locations[job.id] : (job.currentLocation || '')}
                             onChange={(e) => setLocations(prev => ({ ...prev, [job.id]: e.target.value }))}
                             className="flex-1 bg-black text-xs font-mono p-2 border-y border-x border-white/15 focus:border-[#C5FF00] text-white outline-none"
@@ -276,18 +285,18 @@ export default function DashboardPartner({
                             onClick={() => {
                               const val = locations[job.id] !== undefined ? locations[job.id] : (job.currentLocation || '');
                               onUpdateLocation(job.id, val.trim() || 'Rest area / Rest transit');
-                              alert(`Titik Lokasi ${job.id} Berhasil Diperbarui!`);
+                              alert(lang === 'id' ? `Titik Lokasi ${job.id} Berhasil Diperbarui!` : `Location spot for ${job.id} successfully updated!`);
                             }}
-                            className="bg-[#C5FF00] text-black hover:bg-white font-mono font-bold text-[9px] uppercase px-3 py-2 rounded-none transition-all cursor-pointer"
+                            className="bg-[#C5FF00] text-black hover:bg-white font-mono font-bold text-[9px] uppercase px-3 py-2 rounded-none transition-all cursor-pointer border-0"
                           >
-                            SIMPAN_
+                            {lang === 'id' ? 'SIMPAN' : 'SAVE'}
                           </button>
                         </div>
                       </div>
 
                       <div className="flex justify-between items-center pt-3 border-t border-white/10">
                         <div>
-                          <p className="text-[9px] font-mono text-white/40 uppercase tracking-wider">PAYOUT ON ARRIVAL_</p>
+                          <p className="text-[9px] font-mono text-white/40 uppercase tracking-wider">{lang === 'id' ? 'BAYARAN DI ALAMAT TUJUAN_' : 'PAYOUT ON ARRIVAL_'}</p>
                           <p className="text-sm font-black text-[#C5FF00] font-mono">
                             {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(
                               (parseInt(job.amount.replace(/[^0-9]/g, ''), 10) || 0) * 0.85
@@ -297,10 +306,10 @@ export default function DashboardPartner({
 
                         <button
                           onClick={() => onDeliveredBooking(job.id)}
-                          className="bg-[#C5FF00] hover:bg-white text-black font-black text-xs uppercase tracking-widest px-4 py-2 rounded-none flex items-center gap-1 cursor-pointer transition-all"
+                          className="bg-[#C5FF00] hover:bg-white text-black font-black text-xs uppercase tracking-widest px-4 py-2.5 rounded-none flex items-center gap-1 cursor-pointer transition-all border-0"
                         >
                           <Check className="w-4 h-4" />
-                          SELESAI KIRIM
+                          {trans('selesaiKirimBtn', lang)}
                         </button>
                       </div>
                     </div>

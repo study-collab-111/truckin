@@ -18,13 +18,17 @@ import {
 } from 'lucide-react';
 import { AppView } from '../types';
 import { registerNewAccount } from '../lib/firebase';
+import { Language, trans } from '../lib/translations';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface RegisterPartnerProps {
   onNavigate: (view: AppView) => void;
   setUserMode: (mode: 'customer' | 'partner' | 'admin') => void;
+  lang: Language;
+  onSetLang: (lang: Language) => void;
 }
 
-export default function RegisterPartner({ onNavigate, setUserMode }: RegisterPartnerProps) {
+export default function RegisterPartner({ onNavigate, setUserMode, lang, onSetLang }: RegisterPartnerProps) {
   const [ownerName, setOwnerName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -37,7 +41,7 @@ export default function RegisterPartner({ onNavigate, setUserMode }: RegisterPar
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
     if (!ownerName || !email || !phoneNumber || !plateNumber || !password) {
-      setError('Mohon lengkapi seluruh kolom formulir Kemitraan Armada.');
+      setError(lang === 'id' ? 'Mohon lengkapi seluruh kolom formulir Kemitraan Armada.' : 'Please complete all fleet registration columns.');
       return;
     }
 
@@ -53,10 +57,10 @@ export default function RegisterPartner({ onNavigate, setUserMode }: RegisterPar
         plateNumber: plateNumber,
         truckType: truckType
       });
-      alert('Registrasi Kemitraan Driver Sukses! Akun Anda telah tersimpan di sistem dwi-sisi database. Silakan masuk.');
+      alert(lang === 'id' ? 'Registrasi Kemitraan Driver Sukses! Akun Anda telah tersimpan di sistem dwi-sisi database. Silakan masuk.' : 'Driver Partnership Registered Successfully! Welcome aboard. Please login.');
       onNavigate('login');
     } catch (err: any) {
-      setError('Sistem Error: Gagal menyimpan registrasi mitra. Periksa koneksi Anda.');
+      setError(lang === 'id' ? 'Sistem Error: Gagal menyimpan registrasi mitra. Periksa koneksi Anda.' : 'System Error: Failed to save partner registration data.');
     } finally {
       setLoading(false);
     }
@@ -72,10 +76,13 @@ export default function RegisterPartner({ onNavigate, setUserMode }: RegisterPar
           className="flex items-center gap-2 text-white/60 hover:text-[#C5FF00] font-black text-xs uppercase tracking-widest transition-all cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          Kembali ke Beranda
+          {trans('kembaliBeranda', lang)}
         </button>
-        <div className="text-xl font-black tracking-tighter uppercase select-none">
-          TRUKIN<span className="text-[#C5FF00]">_</span>
+        <div className="flex items-center gap-4">
+          <LanguageSwitcher currentLang={lang} onSetLang={onSetLang} />
+          <div className="text-xl font-black tracking-tighter uppercase select-none">
+            TRUKIN<span className="text-[#C5FF00]">_</span>
+          </div>
         </div>
       </div>
 
@@ -86,9 +93,9 @@ export default function RegisterPartner({ onNavigate, setUserMode }: RegisterPar
           className="bg-[#121212] p-10 rounded-none border border-white/10 w-full"
         >
           <div className="text-center mb-8">
-            <span className="text-[10px] font-mono bg-white/5 border border-white/10 text-[#C5FF00] font-bold px-4 py-1.5 rounded-none uppercase tracking-[0.2em] mb-3 inline-block">UNTUK MITRA ARMADA_</span>
-            <h2 className="text-3xl font-black uppercase tracking-tight text-white mb-2">PENDAFTARAN MITRA_</h2>
-            <p className="text-white/60 text-xs font-mono uppercase tracking-wider">Silakan isi detail kendaraan operasional Anda</p>
+            <span className="text-[10px] font-mono bg-white/5 border border-white/10 text-[#C5FF00] font-bold px-4 py-1.5 rounded-none uppercase tracking-[0.2em] mb-3 inline-block">{trans('untukCarrier', lang)}_</span>
+            <h2 className="text-2xl font-black uppercase tracking-tight text-white mb-2">{trans('kemitraanArmadaDaftar', lang)}</h2>
+            <p className="text-white/60 text-xs font-mono uppercase tracking-wider">{trans('formulirKemitraanDesc', lang)}</p>
           </div>
 
           {error && (
@@ -100,7 +107,7 @@ export default function RegisterPartner({ onNavigate, setUserMode }: RegisterPar
 
           <form onSubmit={handleRegister} className="space-y-5">
             <div>
-              <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">Nama Pemilik / Penanggung Jawab</label>
+              <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">{trans('namaPemilik', lang)}</label>
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                 <input
@@ -114,7 +121,7 @@ export default function RegisterPartner({ onNavigate, setUserMode }: RegisterPar
             </div>
 
             <div>
-              <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">E-mail Utama Driver</label>
+              <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">{trans('emailUtamaDriver', lang)}</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                 <input
@@ -129,7 +136,7 @@ export default function RegisterPartner({ onNavigate, setUserMode }: RegisterPar
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">No. Telepon Aktif</label>
+                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">{trans('nomorTelepon', lang)}</label>
                 <div className="relative">
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <input
@@ -143,7 +150,7 @@ export default function RegisterPartner({ onNavigate, setUserMode }: RegisterPar
               </div>
 
               <div>
-                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">No. Plat Kendaraan Utama</label>
+                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">{trans('nomorPlat', lang)}</label>
                 <div className="relative">
                   <FileSpreadsheet className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <input
@@ -159,7 +166,7 @@ export default function RegisterPartner({ onNavigate, setUserMode }: RegisterPar
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">Tipe Truk Terbesar</label>
+                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">{trans('tipeTrukTerdaftar', lang)}</label>
                 <div className="relative">
                   <Truck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <select
@@ -167,16 +174,16 @@ export default function RegisterPartner({ onNavigate, setUserMode }: RegisterPar
                     onChange={(e) => setTruckType(e.target.value)}
                     className="w-full bg-black/60 border border-white/10 focus:border-[#C5FF00] rounded-none py-[15px] pl-12 pr-4 text-sm font-medium text-white placeholder-white/20 outline-none transition-all appearance-none"
                   >
-                    <option value="TRAILER">Trailer Berat</option>
-                    <option value="BAK TERBUKA">Bak Terbuka/Flatbed</option>
-                    <option value="TRUK BOKS">Truk Boks Menengah</option>
-                    <option value="TRUK PENDINGIN">Truk Pendingin (Cold Chain)</option>
+                    <option value="TRAILER">{lang === 'id' ? 'Trailer Berat' : 'Heavy Semi-Trailer'}</option>
+                    <option value="BAK TERBUKA">{lang === 'id' ? 'Bak Terbuka/Flatbed' : 'Flatbed Heavy'}</option>
+                    <option value="TRUK BOKS">{lang === 'id' ? 'Truk Boks Menengah' : 'Medium Box Truck'}</option>
+                    <option value="TRUK PENDINGIN">{lang === 'id' ? 'Truk Pendingin' : 'Refrigerated Truck'}</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">Sandi Masuk Aplikasi</label>
+                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">{trans('password', lang)}</label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <input
@@ -195,18 +202,18 @@ export default function RegisterPartner({ onNavigate, setUserMode }: RegisterPar
                disabled={loading}
                className={`w-full bg-[#C5FF00] text-black py-4.5 rounded-none font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex justify-center items-center gap-2 cursor-pointer mt-6 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {loading ? 'MEMPROSES KEMITRAAN...' : 'DAFTAR KEMITRAAN DRIVER'}
+              {loading ? (lang === 'id' ? 'MEMPROSES...' : 'PROCESSING...') : trans('prosesKemitraanBtn', lang)}
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
           <p className="text-center text-xs text-white/50 mt-8 font-mono">
-            SUDAH TERDAFTAR SEBELUMNYA?{' '}
+            {trans('sudahPunyaKemitraan', lang)}{' '}
             <button 
               onClick={() => onNavigate('login')} 
-              className="text-[#C5FF00] font-black hover:underline cursor-pointer uppercase font-sans text-xs tracking-wider ml-1"
+              className="text-[#C5FF00] font-[#C5FF00] hover:underline cursor-pointer uppercase font-sans text-xs tracking-wider ml-1"
             >
-              MASUK AKUN
+              {lang === 'id' ? 'MASUK AKUN' : 'LOGIN HERE'}
             </button>
           </p>
 
