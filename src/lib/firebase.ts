@@ -19,7 +19,7 @@ import {
   writeBatch 
 } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
-import { Booking, OperationType, Account } from '../types';
+import { Booking, OperationType, Account, SystemAlert } from '../types';
 
 // Initialize the Firebase app instance
 const app = initializeApp(firebaseConfig);
@@ -65,6 +65,23 @@ export async function testConnection() {
 testConnection();
 
 // Dynamic seeding coordinates
+const DUMMY_ALERTS: SystemAlert[] = [
+  {
+    id: 'alt-01',
+    type: 'critical',
+    title: 'KEMACETAN EKSTRIM TOL CIPALI KM 102',
+    message: 'Estimasi perlambatan keterlambatan pengiriman rute Jakarta-Surabaya sekitar +45 Menit.',
+    time: '15 MENIT LALU'
+  },
+  {
+    id: 'alt-02',
+    type: 'info',
+    title: 'PENGISIAN BAHAN BAKAR TERPADU JKI',
+    message: 'Diskon avtur solar subsidi mitra TrukIn di rest area Pertamina KM 45 divalidasi.',
+    time: '1 JAM LALU'
+  }
+];
+
 const DUMMY_BOOKINGS: Booking[] = [
   {
     id: '#TK-8821',
@@ -77,7 +94,9 @@ const DUMMY_BOOKINGS: Booking[] = [
     date: '25 Mei 2026',
     amount: 'Rp 6.800.000',
     status: 'DALAM PERJALANAN',
-    currentLocation: 'Sedang transit di Jembatan Timbang Losarang, Indramayu'
+    currentLocation: 'Sedang transit di Jembatan Timbang Losarang, Indramayu',
+    customerId: 'dummy@trukin.com',
+    partnerId: 'dummy_driver@trukin.com'
   },
   {
     id: '#TK-9011',
@@ -90,7 +109,9 @@ const DUMMY_BOOKINGS: Booking[] = [
     date: '26 Mei 2026',
     amount: 'Rp 1.850.000',
     status: 'MENUNGGU',
-    currentLocation: 'Menunggu pemuatan kargo di gudang utama'
+    currentLocation: 'Menunggu pemuatan kargo di gudang utama',
+    customerId: 'dummy@trukin.com',
+    partnerId: ''
   }
 ];
 
@@ -143,7 +164,9 @@ export async function initializeDummyDataIfEmpty() {
           date: booking.date,
           amount: booking.amount,
           status: booking.status,
-          currentLocation: booking.currentLocation || 'Menunggu jadwal operasional'
+          currentLocation: booking.currentLocation || 'Menunggu jadwal operasional',
+          customerId: booking.customerId || '',
+          partnerId: booking.partnerId || ''
         });
       }
       await batch.commit();
@@ -178,6 +201,30 @@ export async function initializeDummyDataIfEmpty() {
     }
   } catch (error) {
     console.warn('Failed to seed user accounts:', error);
+  }
+
+  // Seed alerts
+  const alertRef = collection(db, 'alerts');
+  try {
+    const alertSnapshot = await getDocs(alertRef);
+    if (alertSnapshot.empty) {
+      console.log('Seeding initial dummy system alerts into Firestore...');
+      const batch = writeBatch(db);
+      for (const alert of DUMMY_ALERTS) {
+        const docRef = doc(db, 'alerts', alert.id);
+        batch.set(docRef, {
+          id: alert.id,
+          type: alert.type,
+          title: alert.title,
+          message: alert.message,
+          time: alert.time
+        });
+      }
+      await batch.commit();
+      console.log('Dummy system alerts seeded successfully!');
+    }
+  } catch (error) {
+    console.warn('Failed to seed system alerts:', error);
   }
 }
 
@@ -258,7 +305,9 @@ export function listenToBookings(onChange: (bookings: Booking[]) => void) {
           date: data.date || '',
           amount: data.amount || '',
           status: data.status as Booking['status'] || 'MENUNGGU',
-          currentLocation: data.currentLocation || 'Dalam proses penjadwalan'
+          currentLocation: data.currentLocation || 'Dalam proses penjadwalan',
+          customerId: data.customerId || '',
+          partnerId: data.partnerId || ''
         });
       });
       // Sort so newest are on top (or maintain standard layout)
@@ -287,7 +336,9 @@ export async function addNewBooking(booking: Booking) {
       date: booking.date,
       amount: booking.amount,
       status: booking.status,
-      currentLocation: booking.currentLocation || 'Menunggu penugasan supir armada'
+      currentLocation: booking.currentLocation || 'Menunggu penugasan supir armada',
+      customerId: booking.customerId || '',
+      partnerId: booking.partnerId || ''
     });
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, `bookings/${docId}`);
@@ -297,13 +348,16 @@ export async function addNewBooking(booking: Booking) {
 /**
  * Updates status of a booking
  */
-export async function updateBookingStatus(id: string, nextStatus: Booking['status']) {
+export async function updateBookingStatus(id: string, nextStatus: Booking['status'], partnerId?: string) {
   try {
     const docRef = doc(db, 'bookings', id);
     // If setting status to finished or waiting, update location text accordingly for convenience
     const updates: Partial<Booking> = { status: nextStatus };
     if (nextStatus === 'SELESAI') {
       updates.currentLocation = 'Kargo telah berhasil dibongkar di tujuan';
+    }
+    if (partnerId !== undefined) {
+      updates.partnerId = partnerId;
     }
     await updateDoc(docRef, updates);
   } catch (error) {
@@ -334,3 +388,63 @@ export async function deleteBooking(id: string) {
     handleFirestoreError(error, OperationType.DELETE, `bookings/${id}`);
   }
 }
+
+/**
+ * Real-time listener for system alerts/announcements
+ */
+export function listenToAlerts(onChange: (alerts: SystemAlert[]) => void) {
+  const ref = collection(db, 'alerts');
+  return onSnapshot(
+    ref,
+    (snapshot) => {
+      const items: SystemAlert[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        items.push({
+          id: docSnap.id,
+          type: data.type as 'critical' | 'info' || 'critical',
+          title: data.title || '',
+          message: data.message || '',
+          time: data.time || ''
+        });
+      });
+      // Sort newest (by ID text or customized timestamp/lexicographical order if needed)
+      onChange(items);
+    },
+    (error) => {
+      handleFirestoreError(error, OperationType.GET, 'alerts');
+    }
+  );
+}
+
+/**
+ * Publishes a new system alert to Firestore
+ */
+export async function addNewAlert(alert: SystemAlert) {
+  const docId = alert.id;
+  try {
+    const docRef = doc(db, 'alerts', docId);
+    await setDoc(docRef, {
+      id: alert.id,
+      type: alert.type,
+      title: alert.title,
+      message: alert.message,
+      time: alert.time
+    });
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, `alerts/${docId}`);
+  }
+}
+
+/**
+ * Deletes / resolves a system alert from Firestore
+ */
+export async function deleteAlert(id: string) {
+  try {
+    const docRef = doc(db, 'alerts', id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, `alerts/${id}`);
+  }
+}
+

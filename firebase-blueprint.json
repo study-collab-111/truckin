@@ -1,5 +1,18 @@
 {
   "entities": {
+    "SystemAlert": {
+      "title": "SystemAlert",
+      "description": "Critical alerts and announcements published by admin to drivers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["critical", "info"] },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "time": { "type": "string" }
+      },
+      "required": ["id", "type", "title", "message", "time"]
+    },
     "Booking": {
       "title": "Booking",
       "description": "Logistics booking order details",
@@ -64,6 +77,10 @@
     }
   },
   "firestore": {
+    "alerts/{alertId}": {
+      "schema": "SystemAlert",
+      "description": "Collection of all broadcasted notifications and bulletins for partners/drivers"
+    },
     "bookings/{bookingId}": {
       "schema": "Booking",
       "description": "Collection of all logistics bookings available or active"

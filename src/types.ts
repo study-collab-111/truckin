@@ -25,6 +25,8 @@ export interface Booking {
   amount: string;
   status: 'SELESAI' | 'DALAM PERJALANAN' | 'MENUNGGU';
   currentLocation?: string;
+  customerId?: string;
+  partnerId?: string;
 }
 
 export enum OperationType {

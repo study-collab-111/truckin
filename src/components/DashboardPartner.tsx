@@ -14,9 +14,12 @@ import {
   LogOut,
   Compass,
   Briefcase,
-  Play
+  Play,
+  Bell,
+  AlertTriangle,
+  Info
 } from 'lucide-react';
-import { Booking, AppView, Account } from '../types';
+import { Booking, AppView, Account, SystemAlert } from '../types';
 import { Language, trans } from '../lib/translations';
 import LanguageSwitcher from './LanguageSwitcher';
 
@@ -29,6 +32,7 @@ interface DashboardPartnerProps {
   onNavigate: (view: AppView) => void;
   lang: Language;
   onSetLang: (lang: Language) => void;
+  alerts: SystemAlert[];
 }
 
 export default function DashboardPartner({ 
@@ -39,7 +43,8 @@ export default function DashboardPartner({
   onUpdateLocation,
   onNavigate,
   lang,
-  onSetLang
+  onSetLang,
+  alerts
 }: DashboardPartnerProps) {
 
   // State to hold custom string input per active cargo tracking item
@@ -50,15 +55,15 @@ export default function DashboardPartner({
     return bookings.filter(b => b.status === 'MENUNGGU');
   }, [bookings]);
 
-  // Jobs currently running ('DALAM PERJALANAN') that Mitra is carrying 
+  // Jobs currently running ('DALAM PERJALANAN') that this logged-in Mitra is carrying 
   const currentRunningJobs = useMemo(() => {
-    return bookings.filter(b => b.status === 'DALAM PERJALANAN');
-  }, [bookings]);
+    return bookings.filter(b => b.status === 'DALAM PERJALANAN' && b.partnerId?.toLowerCase().trim() === currentUser?.email?.toLowerCase().trim());
+  }, [bookings, currentUser]);
 
-  // Historical completed jobs
+  // Historical completed jobs that this logged-in Mitra carried
   const completedJobs = useMemo(() => {
-    return bookings.filter(b => b.status === 'SELESAI');
-  }, [bookings]);
+    return bookings.filter(b => b.status === 'SELESAI' && b.partnerId?.toLowerCase().trim() === currentUser?.email?.toLowerCase().trim());
+  }, [bookings, currentUser]);
 
   // Calculate earnings
   const earnings = useMemo(() => {
@@ -314,6 +319,63 @@ export default function DashboardPartner({
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Real-time Broadcast/announcement bulletin for drivers */}
+            <div className="bg-[#121212] p-8 border border-white/10 rounded-none space-y-6">
+              <div>
+                <span className="text-[9px] font-mono text-red-500 uppercase tracking-widest block mb-1">SIARAN OPERASIONAL AKTIF_</span>
+                <h3 className="text-base font-black uppercase tracking-tight text-white flex items-center gap-2">
+                  <Bell className="w-5 h-5 text-[#C5FF00]" />
+                  {lang === 'id' ? 'SIARAN KHUSUS DRIVER' : 'DRIVER CHANNEL INFO'} ({alerts?.length || 0})_
+                </h3>
+                <p className="text-xs font-mono text-white/50">{lang === 'id' ? 'Kabar lalu lintas, keselamatan jalan, penutupan jembatan, & penyesuaian tarif solar subsidi.' : 'Traffic info, safety checkpoints, weight station status, and diesel subsidies announcements.'}</p>
+              </div>
+
+              {(alerts && alerts.length > 0) ? (
+                <div className="space-y-4">
+                  {alerts.map((alert) => (
+                    <motion.div
+                      key={alert.id}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`p-5 rounded-none border transition-all duration-300 flex gap-4 ${
+                        alert.type === 'critical'
+                          ? 'bg-red-500/5 border-red-500/20 text-red-100 hover:border-red-500/40'
+                          : 'bg-teal-500/5 border-teal-500/20 text-teal-100 hover:border-teal-500/40'
+                      }`}
+                    >
+                      <div className="mt-0.5">
+                        {alert.type === 'critical' ? (
+                          <AlertTriangle className="w-5 h-5 text-red-500" />
+                        ) : (
+                          <Info className="w-5 h-5 text-[#C5FF00]" />
+                        )}
+                      </div>
+                      <div className="space-y-1.5 flex-1">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <span className={`text-[8px] font-mono font-black uppercase tracking-widest px-2 py-0.5 rounded-none ${
+                            alert.type === 'critical'
+                              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                              : 'bg-teal-500/20 text-teal-400 border border-teal-500/30'
+                          }`}>
+                            {alert.type === 'critical' ? 'CRITICAL' : 'INFO'}
+                          </span>
+                          <span className="text-[9px] font-mono text-white/40 uppercase tracking-widest">{alert.time}</span>
+                        </div>
+                        <h4 className="font-black text-sm uppercase tracking-tight text-white">{alert.title}</h4>
+                        <p className="text-xs font-mono text-white/70 leading-relaxed">{alert.message}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10 border border-dashed border-white/10 rounded-none bg-black/40">
+                  <Bell className="w-8 h-8 text-white/20 mx-auto mb-2" />
+                  <p className="font-mono text-xs text-white/40 uppercase">{lang === 'id' ? 'TIDAK ADA BANNER SIARAN AKTIF' : 'NO ACTIVE DRIVER BULLETINS'}</p>
+                  <p className="text-[10px] text-white/30 font-mono mt-1">{lang === 'id' ? 'Semua rute operasional terpantau kondusif & lancar.' : 'All operational logistics corridors are clear.'}</p>
                 </div>
               )}
             </div>

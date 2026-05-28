@@ -30,6 +30,9 @@ interface DashboardAdminProps {
   onNavigate: (view: AppView) => void;
   lang: Language;
   onSetLang: (lang: Language) => void;
+  alerts: SystemAlert[];
+  onPostAlert: (alert: SystemAlert) => void;
+  onResolveAlert: (id: string) => void;
 }
 
 export default function DashboardAdmin({ 
@@ -39,27 +42,12 @@ export default function DashboardAdmin({
   onDeleteBooking,
   onNavigate,
   lang,
-  onSetLang
+  onSetLang,
+  alerts,
+  onPostAlert,
+  onResolveAlert
 }: DashboardAdminProps) {
   
-  // Custom alerts queue in Command Room 
-  const [alerts, setAlerts] = useState<SystemAlert[]>([
-    {
-      id: 'alt-01',
-      type: 'critical',
-      title: 'KEMACETAN EKSTRIM TOL CIPALI KM 102',
-      message: 'Estimasi perlambatan keterlambatan pengiriman rute Jakarta-Surabaya sekitar +45 Menit.',
-      time: '15 MENIT LALU'
-    },
-    {
-      id: 'alt-02',
-      type: 'info',
-      title: 'PENGISIAN BAHAN BAKAR TERPADU JKI',
-      message: 'Diskon avtur solar subsidi mitra TrukIn di rest area Pertamina KM 45 divalidasi.',
-      time: '1 JAM LALU'
-    }
-  ]);
-
   // Mock pending drivers list for verification
   const [pendingDrivers, setPendingDrivers] = useState([
     { id: 'drv-01', name: 'Budiman Santoso', plate: 'D 4410 ABK', type: 'TRUK BOKS', status: 'PENDING' },
@@ -82,14 +70,14 @@ export default function DashboardAdmin({
       time: lang === 'id' ? 'BARU SAJA' : 'JUST NOW'
     };
 
-    setAlerts([newAlert, ...alerts]);
+    onPostAlert(newAlert);
     setNewNoticeTitle('');
     setNewNoticeMsg('');
   };
 
   // Resolve Alerts
   const handleResolveAlert = (id: string) => {
-    setAlerts(alerts.filter(a => a.id !== id));
+    onResolveAlert(id);
   };
 
   // Approve driver

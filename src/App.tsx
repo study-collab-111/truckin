@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { AppView, Booking, Account } from './types';
+import { AppView, Booking, Account, SystemAlert } from './types';
 import { Language } from './lib/translations';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
@@ -20,7 +20,10 @@ import {
   addNewBooking, 
   updateBookingStatus, 
   updateBookingLocation, 
-  deleteBooking 
+  deleteBooking,
+  listenToAlerts,
+  addNewAlert,
+  deleteAlert
 } from './lib/firebase';
 
 export default function App() {
@@ -38,56 +41,63 @@ export default function App() {
     localStorage.setItem('trukin_lang', newLang);
   };
 
-  // Coordinated shared bookings state - initialized with 2 requested dummy data
-  const [bookings, setBookings] = useState<Booking[]>([
-    {
-      id: '#TK-8821',
-      pickup: 'Jakarta Barat (DC)',
-      destination: 'Surabaya Hub Center',
-      cargoDetail: 'Peralatan Elektronik Konsumer',
-      weight: 18,
-      priority: 'EKSPRES',
-      truckType: 'TRAILER',
-      date: '25 Mei 2026',
-      amount: 'Rp 6.800.000',
-      status: 'DALAM PERJALANAN',
-      currentLocation: 'Sedang transit di Jembatan Timbang Losarang, Indramayu'
-    },
-    {
-      id: '#TK-9011',
-      pickup: 'Jakarta Barat (DC)',
-      destination: 'Bandung Logistics Center',
-      cargoDetail: 'Bahan Baku Tekstil Premium',
-      weight: 5,
-      priority: 'STANDAR',
-      truckType: 'TRUK BOKS',
-      date: '26 Mei 2026',
-      amount: 'Rp 1.850.000',
-      status: 'MENUNGGU',
-      currentLocation: 'Menunggu pemuatan kargo di gudang utama'
-    }
-  ]);
+  // Coordinated shared bookings state - initialized as empty to represent real-time synchronization
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  // Coordinated real-time alerts state for driver announcements
+  const [alerts, setAlerts] = useState<SystemAlert[]>([]);
 
   // Synchronize with Firebase
   useEffect(() => {
     // 1. Seed dummy orders into Firestore if database is empty on launch
     initializeDummyDataIfEmpty();
 
-    // 2. Unsubscribe handle for live snapshot events
-    const unsubscribe = listenToBookings((liveBookings) => {
-      if (liveBookings && liveBookings.length > 0) {
+    // 2. Unsubscribe handle for live snapshot events of bookings
+    const unsubscribeBookings = listenToBookings((liveBookings) => {
+      if (liveBookings) {
         setBookings(liveBookings);
       }
     });
 
-    return () => unsubscribe();
+    // 3. Unsubscribe handle for live snapshot events of system alerts
+    const unsubscribeAlerts = listenToAlerts((liveAlerts) => {
+      if (liveAlerts) {
+        setAlerts(liveAlerts);
+      }
+    });
+
+    return () => {
+      unsubscribeBookings();
+      unsubscribeAlerts();
+    };
   }, []);
 
   // Actions synced with Firebase
-  const handleAddBooking = async (newBooking: Booking) => {
-    setBookings((prev) => [newBooking, ...prev]);
+  const handlePostAlert = async (newAlert: SystemAlert) => {
+    setAlerts((prev) => [newAlert, ...prev]);
     try {
-      await addNewBooking(newBooking);
+      await addNewAlert(newAlert);
+    } catch (e) {
+      console.warn("Firestore alert post deferred:", e);
+    }
+  };
+
+  const handleResolveAlert = async (id: string) => {
+    setAlerts((prev) => prev.filter((a) => a.id !== id));
+    try {
+      await deleteAlert(id);
+    } catch (e) {
+      console.warn("Firestore alert resolve deferred:", e);
+    }
+  };
+
+  const handleAddBooking = async (newBooking: Booking) => {
+    const bookingWithUser = {
+      ...newBooking,
+      customerId: currentUser?.email || ''
+    };
+    setBookings((prev) => [bookingWithUser, ...prev]);
+    try {
+      await addNewBooking(bookingWithUser);
     } catch (e) {
       console.warn("Firestore save deferred:", e);
     }
@@ -103,11 +113,12 @@ export default function App() {
   };
 
   const handleAcceptBooking = async (id: string) => {
+    const partnerEmail = currentUser?.email || '';
     setBookings((prev) => 
-      prev.map((b) => b.id === id ? { ...b, status: 'DALAM PERJALANAN', currentLocation: 'Armada berangkat, sedang memuat di gudang.' } : b)
+      prev.map((b) => b.id === id ? { ...b, status: 'DALAM PERJALANAN', partnerId: partnerEmail, currentLocation: 'Armada berangkat, sedang memuat di gudang.' } : b)
     );
     try {
-      await updateBookingStatus(id, 'DALAM PERJALANAN');
+      await updateBookingStatus(id, 'DALAM PERJALANAN', partnerEmail);
     } catch (e) {
       console.warn("Firestore accept status deferred:", e);
     }
@@ -197,6 +208,7 @@ export default function App() {
             onNavigate={navigateTo}
             lang={lang}
             onSetLang={handleSetLang}
+            alerts={alerts}
           />
         );
       
@@ -210,6 +222,9 @@ export default function App() {
             onNavigate={navigateTo}
             lang={lang}
             onSetLang={handleSetLang}
+            alerts={alerts}
+            onPostAlert={handlePostAlert}
+            onResolveAlert={handleResolveAlert}
           />
         );
       

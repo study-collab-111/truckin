@@ -124,15 +124,22 @@ export default function DashboardCustomer({
     setTimeout(() => setSuccessMsg(''), 5000);
   };
 
+  // Filter bookings to show only those belonging to the logged-in customer
+  const myBookings = useMemo(() => {
+    return bookings.filter(b => b.customerId?.toLowerCase().trim() === currentUser?.email?.toLowerCase().trim());
+  }, [bookings, currentUser]);
+
   // Filtered list
-  const filteredBookings = bookings.filter(b => {
-    if (filterStatus === 'ALL') return true;
-    return b.status === filterStatus;
-  });
+  const filteredBookings = useMemo(() => {
+    return myBookings.filter(b => {
+      if (filterStatus === 'ALL') return true;
+      return b.status === filterStatus;
+    });
+  }, [myBookings, filterStatus]);
 
   // KPI Calculations
   const stats = useMemo(() => {
-    const totalSpentValue = bookings.reduce((sum, b) => {
+    const totalSpentValue = myBookings.reduce((sum, b) => {
       const strippedNum = parseInt(b.amount.replace(/[^0-9]/g, ''), 10) || 0;
       return sum + strippedNum;
     }, 0);
@@ -140,11 +147,11 @@ export default function DashboardCustomer({
     const formattedActiveMoney = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalSpentValue);
 
     return {
-      active: bookings.filter(b => b.status === 'DALAM PERJALANAN').length,
-      waiting: bookings.filter(b => b.status === 'MENUNGGU').length,
+      active: myBookings.filter(b => b.status === 'DALAM PERJALANAN').length,
+      waiting: myBookings.filter(b => b.status === 'MENUNGGU').length,
       totalMoney: formattedActiveMoney
     };
-  }, [bookings]);
+  }, [myBookings]);
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white font-sans antialiased selection:bg-[#C5FF00] selection:text-black">

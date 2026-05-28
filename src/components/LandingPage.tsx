@@ -80,8 +80,7 @@ export default function LandingPage({ onNavigate, lang, onSetLang }: LandingPage
         <section className="relative overflow-hidden py-24 md:py-36 border-b border-white/10">
           {/* Large decorative technical grid */}
           <div className="absolute inset-0 opacity-5 pointer-events-none">
-            <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
-          </div>
+            </div>
           
           {/* Decorative Background Text Overlay */}
           <div className="absolute top-1/2 -left-16 text-[22rem] font-black opacity-[0.02] leading-none pointer-events-none select-none italic uppercase tracking-tighter -translate-y-1/2">
@@ -152,11 +151,7 @@ export default function LandingPage({ onNavigate, lang, onSetLang }: LandingPage
               <div className="absolute -inset-10 bg-[#C5FF00]/5 blur-[120px] rounded-full"></div>
               <div className="relative z-10 bg-[#121212] p-6 border border-white/10 grayscale contrast-125 hover:grayscale-0 transition-all duration-700">
                 <div className="absolute top-2 right-2 text-[10.5px] font-mono text-white/30">SYS_A_43</div>
-                <img 
-                  alt="TrukIn Hero Logistics Illustration" 
-                  className="w-full h-auto object-cover" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrU1bxqiMMxDdLfze9hsK7AtaN25s3EtaL0OfPznUZIfzgWSvsAKIhVmp4gIiVslw-eSWMpKPO9_nfSZDVzGGSJuUJSeYHP2qg5zxA2GjNV9kfh66Hwg-Oanx1E0nbYXm67AmIAsP0x1PvvdwnaXCsx7sANsUIXkDjBVb5Dt9Vl_o-8Iy-063LFmvEhx251b9EXulZZEnBYAGOWAQLu087Xugf1lKKfYLMTQikRf57FHq7kqyFI6vrsWa00tqRUIPxWT5uTpn6AmI" 
-                />
+                
               </div>
             </motion.div>
           </div>
@@ -236,7 +231,7 @@ export default function LandingPage({ onNavigate, lang, onSetLang }: LandingPage
                   <img 
                     alt="Logistics and Trucking" 
                     className="w-full h-[450px] object-cover" 
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZlnXzKBQrbb2j0GQRtjYbModwRzhKZ2Be-J8ygY_zUmPYSvIw3_Iub-8JNxyqjTtzN9PGVlxYIe3bXcyb8H9v2k2Anohzg3I0oBJNHNGyyU83m7u7dY6VoAYobQsABNNictsdQE3yeeHF_Z4NZdRtk_zzMKXasgt3SvH-EvDPn3qBxi89tpty8Stamvs66_nIbq7gK5aqK4rZ9jzwco8NmKaN6TaHPWJ0PfnkJ30IRiWcKpYChwh28fxF3_zxaYnUVtTLTRfouOE" 
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrU1bxqiMMxDdLfze9hsK7AtaN25s3EtaL0OfPznUZIfzgWSvsAKIhVmp4gIiVslw-eSWMpKPO9_nfSZDVzGGSJuUJSeYHP2qg5zxA2GjNV9kfh66Hwg-Oanx1E0nbYXm67AmIAsP0x1PvvdwnaXCsx7sANsUIXkDjBVb5Dt9Vl_o-8Iy-063LFmvEhx251b9EXulZZEnBYAGOWAQLu087Xugf1lKKfYLMTQikRf57FHq7kqyFI6vrsWa00tqRUIPxWT5uTpn6AmI" 
                   />
                 </div>
                 
@@ -322,7 +317,7 @@ export default function LandingPage({ onNavigate, lang, onSetLang }: LandingPage
                 <div className="h-44 overflow-hidden bg-zinc-900 grayscale group-hover:grayscale-0 transition-all duration-500">
                   <img 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcmryeplEx1cdzmExqZZVpYj_okupujyemsacI19hO_nJBCIaQPvimkSZnbyExL8zwtjyHAg1fOK56rk47BIy4bXGToVjBCjmdcqZLo2jKQmCZVcNeJ908Z820L_YqHGjB2Xjy-Aw2lui1S6QICog_YTn3R3FPXJcz9DZQUI7Ym4_AItagHP4FjLVFUgok25Gc059ncdsDyVz6-HQHxhw_P-NDUYsxRzrdGliwSE_BBzcMi9p_jigLmsPXM1vWTzjZWqoNB8ZvKgc" 
+                    src="https://hskbiiwznhfhsyjlingw.supabase.co/storage/v1/object/sign/foto%20product/WhatsApp%20Image%202026-05-28%20at%2018.58.13%20(1).jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9iZjdkMjZjOC0yYmMxLTRkZWQtYjg0NC1iMjRjMWRjNzQ4ZmYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJmb3RvIHByb2R1Y3QvV2hhdHNBcHAgSW1hZ2UgMjAyNi0wNS0yOCBhdCAxOC41OC4xMyAoMSkuanBlZyIsImlhdCI6MTc3OTk3Nzg3NCwiZXhwIjoxODExNTEzODc0fQ.84-yLwTGpzYqcYCf4GDEVea2c3A8iExTgdKRWhT_zXo" 
                     alt="Box Truck" 
                   />
                 </div>
@@ -340,7 +335,7 @@ export default function LandingPage({ onNavigate, lang, onSetLang }: LandingPage
                 <div className="h-44 overflow-hidden bg-zinc-900 grayscale group-hover:grayscale-0 transition-all duration-500">
                   <img 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7hlcZfEP4LokLPVaUakfGnvrVWq0i3Hua4iPUOvtBUOXcvbQe5BUkZbIqjOgb5LLfXCeLbFiBlmcM-nI4Lo2yTuFZ9mXqdAcaGaLc-_UO3FY6_LK-48U1J05btKk6PVM5sHl-0PinKQ1TT5f4Jwgf3M11zLNRGOOzx6iWtXpUNLaN2b9LtLHBIZbKaBdm73WZCJAiMh8RV_0Oa3cWSdLV6euJHgB4MLSz2kznXh7gAmhz5tX1xpcNIM2kdqzI6N2k8syx5m_rFk" 
+                    src="https://hskbiiwznhfhsyjlingw.supabase.co/storage/v1/object/sign/foto%20product/truk%20(1).webp?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9iZjdkMjZjOC0yYmMxLTRkZWQtYjg0NC1iMjRjMWRjNzQ4ZmYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJmb3RvIHByb2R1Y3QvdHJ1ayAoMSkud2VicCIsImlhdCI6MTc3OTk3MjQ3NSwiZXhwIjoxODExNTA4NDc1fQ.vUAE2SKHWp9Dui8fB6B7BmAVrdGuN95jtFBtDkLx_fI" 
                     alt="Flatbed" 
                   />
                 </div>
@@ -421,7 +416,7 @@ export default function LandingPage({ onNavigate, lang, onSetLang }: LandingPage
                 TRUKIN<span className="text-[#C5FF00]">_</span>
               </div>
               <p className="text-xs text-white/40 max-w-xs font-mono">
-                &copy; 2026 TRUKIN LABS. ALL SYSTEM LOGS DISCIPLINED. SHIPPED WITH BOLD CRAFT.
+                &copy; 2026 TRUKIN - AKUNTANSI UMP.
               </p>
             </div>
             

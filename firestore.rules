@@ -39,6 +39,11 @@ service cloud.firestore {
       allow read, write: if true; // Public access for unified dynamic registration & login system
     }
 
+    // Alerts collection rules
+    match /alerts/{alertId} {
+      allow read, write: if true; // Dynamic alerts & notice broadcasts
+    }
+
     // Helper functions
 
     function incoming() {
