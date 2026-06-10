@@ -23,6 +23,53 @@ import { Booking, AppView, Account } from '../types';
 import { Language, trans } from '../lib/translations';
 import LanguageSwitcher from './LanguageSwitcher';
 
+export const TRUCK_SPECS = [
+  {
+    value: 'TRUK BOKS' as Booking['truckType'],
+    labelId: 'TRUK BOKS',
+    labelEn: 'BOX TRUCK',
+    capacity: 10,
+    descId: 'Truk Box Menengah (Max 10 Ton)',
+    descEn: 'Medium Box Truck (Max 10 Ton)',
+  },
+  {
+    value: 'TRUK PENDINGIN' as Booking['truckType'],
+    labelId: 'TRUK BERPENDINGIN',
+    labelEn: 'REFRIGERATED TRUCK',
+    capacity: 15,
+    descId: 'Suhu Terjaga (Max 15 Ton)',
+    descEn: 'Cold Chain (Max 15 Ton)',
+  },
+  {
+    value: 'BAK TERBUKA' as Booking['truckType'],
+    labelId: 'BAK TERBUKA/FLAT',
+    labelEn: 'FLATBED CARRIER',
+    capacity: 20,
+    descId: 'Bak Flat Terbuka (Max 20 Ton)',
+    descEn: 'Flatbed Carrier (Max 20 Ton)',
+  },
+  {
+    value: 'TRAILER' as Booking['truckType'],
+    labelId: 'TRAILER CONTAINER',
+    labelEn: 'TRAILER CONTAINER',
+    capacity: 45,
+    descId: 'Kontainer Berat (Max 45 Ton)',
+    descEn: 'Heavy Container (Max 45 Ton)',
+  }
+];
+
+export const getWhatsAppLink = (phone?: string) => {
+  const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '6285326610836';
+  let finalPhone = cleanPhone;
+  if (finalPhone.startsWith('08')) {
+    finalPhone = '628' + finalPhone.slice(1);
+  }
+  if (finalPhone.length < 8) {
+    finalPhone = '6285326610836';
+  }
+  return `https://wa.me/${finalPhone}`;
+};
+
 interface DashboardCustomerProps {
   bookings: Booking[];
   currentUser: Account | null;
@@ -31,6 +78,7 @@ interface DashboardCustomerProps {
   onNavigate: (view: AppView) => void;
   lang: Language;
   onSetLang: (lang: Language) => void;
+  accounts?: Account[];
 }
 
 export default function DashboardCustomer({ 
@@ -40,7 +88,8 @@ export default function DashboardCustomer({
   onDeleteBooking,
   onNavigate,
   lang,
-  onSetLang
+  onSetLang,
+  accounts = []
 }: DashboardCustomerProps) {
   
   // Create state for new booking form
@@ -51,6 +100,19 @@ export default function DashboardCustomer({
   const [priority, setPriority] = useState<'STANDAR' | 'EKSPRES'>('STANDAR');
   const [truckType, setTruckType] = useState<Booking['truckType']>('TRUK BOKS');
   const [date, setDate] = useState('2026-05-26');
+
+  const handleWeightSliderChange = (newWeight: number) => {
+    setWeight(newWeight);
+    const currentSpec = TRUCK_SPECS.find(s => s.value === truckType);
+    if (currentSpec && newWeight > currentSpec.capacity) {
+      const validSpec = TRUCK_SPECS.find(s => newWeight <= s.capacity);
+      if (validSpec) {
+        setTruckType(validSpec.value);
+      } else {
+        setTruckType('TRAILER');
+      }
+    }
+  };
   
   // Search / Filter states
   const [filterStatus, setFilterStatus] = useState<'ALL' | 'MENUNGGU' | 'DALAM PERJALANAN' | 'SELESAI'>('ALL');
@@ -312,56 +374,89 @@ export default function DashboardCustomer({
                     min="1"
                     max="45"
                     value={weight}
-                    onChange={(e) => setWeight(Number(e.target.value))}
+                    onChange={(e) => handleWeightSliderChange(Number(e.target.value))}
                     className="w-full h-1.5 bg-black rounded-none cursor-pointer accent-[#C5FF00]"
                   />
                 </div>
 
-                {/* Truck specifications */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">{trans('jenisLayananTruk', lang)}</label>
-                    <div className="relative">
-                      <Truck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                      <select
-                        value={truckType}
-                        onChange={(e) => setTruckType(e.target.value as Booking['truckType'])}
-                        className="w-full bg-black/60 text-xs font-bold font-mono py-3.5 pl-10 pr-4 border border-white/10 rounded-none appearance-none cursor-pointer"
-                      >
-                        <option value="TRUK BOKS">{lang === 'id' ? 'TRUK BOKS' : 'BOX TRUCK'}</option>
-                        <option value="TRAILER">{lang === 'id' ? 'TRAILER CONTAINER' : 'TRAILER CONTAINER'}</option>
-                        <option value="BAK TERBUKA">{lang === 'id' ? 'BAK TERBUKA/FLAT' : 'FLATBED CARRIER'}</option>
-                        <option value="TRUK PENDINGIN">{lang === 'id' ? 'TRUK BERPENDINGIN' : 'REFRIGERATED TRUCK'}</option>
-                      </select>
+                {/* Truck specifications & classification grid */}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1.5">{trans('jenisLayananTruk', lang)}</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {TRUCK_SPECS.map((spec) => {
+                          const isDisabled = weight > spec.capacity;
+                          const isSelected = truckType === spec.value;
+                          return (
+                            <button
+                              key={spec.value}
+                              type="button"
+                              disabled={isDisabled}
+                              onClick={() => setTruckType(spec.value)}
+                              className={`p-3.5 border text-left rounded-none transition-all duration-200 cursor-pointer flex flex-col justify-between h-[105px] group ${
+                                isDisabled
+                                  ? 'bg-[#150505]/40 border-red-950/40 opacity-35 cursor-not-allowed pointer-events-none'
+                                  : isSelected
+                                    ? 'bg-[#C5FF00]/10 border-[#C5FF00] text-white'
+                                    : 'bg-black/60 border-white/10 hover:border-white/20 hover:bg-black/80 text-white/80'
+                              }`}
+                            >
+                              <div className="flex justify-between items-center w-full">
+                                <span className={`font-mono text-[8px] font-black tracking-wider px-1.5 py-0.5 ${isDisabled ? 'bg-red-950 text-red-400' : isSelected ? 'bg-[#C5FF00]/15 text-[#C5FF00]' : 'bg-white/5 text-white/50'}`}>
+                                  {spec.capacity}T MAX
+                                </span>
+                                {isSelected && !isDisabled && (
+                                  <span className="w-1.5 h-1.5 bg-[#C5FF00] rounded-full animate-ping"></span>
+                                )}
+                              </div>
+                              
+                              <div className="mt-2">
+                                <span className={`text-[10px] font-mono font-black uppercase block tracking-tight ${isSelected && !isDisabled ? 'text-[#C5FF00]' : 'text-white'}`}>
+                                  {lang === 'id' ? spec.labelId : spec.labelEn}
+                                </span>
+                                <span className="text-[8px] font-mono block text-white/40 uppercase mt-0.5 truncate max-w-full">
+                                  {isDisabled 
+                                    ? (lang === 'id' ? 'KAPASITAS KURANG' : 'LIMIT OUT OF SPEC')
+                                    : (lang === 'id' ? spec.descId : spec.descEn)}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1">{trans('prioritasKiriman', lang)}</label>
-                    <div className="flex bg-black p-1 border border-white/10 rounded-none">
-                      <button
-                        type="button"
-                        onClick={() => setPriority('STANDAR')}
-                        className={`flex-1 text-[9px] font-black py-2 rounded-none transition-all cursor-pointer ${
-                          priority === 'STANDAR' 
-                            ? 'bg-white text-black font-bold' 
-                            : 'text-white/60'
-                        }`}
-                      >
-                        {lang === 'id' ? 'STANDAR' : 'STANDARD'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPriority('EKSPRES')}
-                        className={`flex-1 text-[9px] font-black py-2 rounded-none transition-all flex items-center justify-center gap-1 cursor-pointer ${
-                          priority === 'EKSPRES' 
-                            ? 'bg-[#C5FF00] text-black font-bold' 
-                            : 'text-white/60'
-                        }`}
-                      >
-                        <Zap className="w-3 h-3" />
-                        {lang === 'id' ? 'EKSPRES' : 'EXPRESS'}
-                      </button>
+                    <div>
+                      <label className="block text-[9px] font-mono uppercase tracking-wider text-white/50 mb-1.5">{trans('prioritasKiriman', lang)}</label>
+                      <div className="flex bg-black/60 p-1 border border-white/10 rounded-none h-[105px] flex-col justify-center gap-1.5 px-3">
+                        <span className="text-[8px] font-mono text-white/40 uppercase tracking-widest">{lang === 'id' ? 'pilih tipe prioritas kargo:' : 'select cargo priority level:'}</span>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setPriority('STANDAR')}
+                            className={`flex-1 text-[9px] font-black py-3 rounded-none transition-all cursor-pointer ${
+                              priority === 'STANDAR' 
+                                ? 'bg-white text-black font-bold' 
+                                : 'text-white/60 hover:text-white bg-black/40 border border-white/5'
+                            }`}
+                          >
+                            {lang === 'id' ? 'STANDAR' : 'STANDARD'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPriority('EKSPRES')}
+                            className={`flex-1 text-[9px] font-black py-3 rounded-none transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                              priority === 'EKSPRES' 
+                                ? 'bg-[#C5FF00] text-black font-bold' 
+                                : 'text-white/60 hover:text-white bg-black/40 border border-white/5'
+                            }`}
+                          >
+                            <Zap className="w-3 h-3" />
+                            {lang === 'id' ? 'EKSPRES' : 'EXPRESS'}
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -519,14 +614,45 @@ export default function DashboardCustomer({
                         </div>
 
                         {/* Text Location Display (Reported dynamically by drivers) */}
-                        {b.status !== 'MENUNGGU' && (
-                          <div className="mt-4 pt-3 border-t border-white/10 bg-white/[0.02] p-3 border-l-2 border-[#C5FF00]/50">
-                            <span className="text-[8px] font-mono text-[#C5FF00] uppercase tracking-widest block mb-1">{trans('posisiLacak', lang)}_</span>
-                            <p className="text-xs text-white/95 font-mono font-bold">
-                              {b.currentLocation || (b.status === 'SELESAI' ? (lang === 'id' ? 'Kargo telah berhasil dibongkar di tujuan.' : 'Cargo successfully discharged at facility.') : (lang === 'id' ? 'Armada sedang berangkat, menunggu pembaruan lokasi.' : 'Carrier crew in transit, pending telemetry signal.'))}
-                            </p>
-                          </div>
-                        )}
+                        {b.status !== 'MENUNGGU' && (() => {
+                          const driverAcc = accounts?.find(
+                            (acc) => acc.role === 'partner' && acc.email.toLowerCase().trim() === b.partnerId?.toLowerCase().trim()
+                          );
+                          const waPhone = driverAcc?.phoneNumber || '085326610836';
+                          const waLink = getWhatsAppLink(waPhone);
+                          return (
+                            <div className="mt-4 pt-3 border-t border-white/10 space-y-3">
+                              <div className="bg-white/[0.02] p-3 border-l-2 border-[#C5FF00]/50">
+                                <span className="text-[8px] font-mono text-[#C5FF00] uppercase tracking-widest block mb-1">{trans('posisiLacak', lang)}_</span>
+                                <p className="text-xs text-white/95 font-mono font-bold">
+                                  {b.currentLocation || (b.status === 'SELESAI' ? (lang === 'id' ? 'Kargo telah berhasil dibongkar di tujuan.' : 'Cargo successfully discharged at facility.') : (lang === 'id' ? 'Armada sedang berangkat, menunggu pembaruan lokasi.' : 'Carrier crew in transit, pending telemetry signal.'))}
+                                </p>
+                              </div>
+
+                              <div className="bg-white/[0.02] p-3 border border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                                <div>
+                                  <span className="text-[8px] font-mono text-white/40 uppercase tracking-widest block mb-0.5">{lang === 'id' ? 'MITRA ARMADA PENUGASAN' : 'ASSIGNED SHIPMENT CARRIER'}_</span>
+                                  <h6 className="font-black text-xs uppercase text-white tracking-tight">{driverAcc?.name || 'Samsul Arifin (M-TKI)'}</h6>
+                                  <p className="text-[9px] font-mono text-white/50 uppercase mt-0.5">
+                                    Plat No: <span className="text-[#C5FF00] font-bold">{driverAcc?.plateNumber || 'B 9821 TKI'}</span> &bull; {driverAcc?.truckType || 'TRAILER'}
+                                  </p>
+                                </div>
+                                <a
+                                  href={waLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1.5 bg-[#25D366] text-black font-black font-mono text-[9px] px-3.5 py-2 hover:bg-white transition-all rounded-none uppercase tracking-wider"
+                                >
+                                  <span className="relative flex h-1.5 w-1.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+                                  </span>
+                                  Hubungi Driver (WA)_
+                                </a>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {/* Right: Pricing, Status & Quick actions */}

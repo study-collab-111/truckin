@@ -136,12 +136,14 @@ export default function RegisterPartner({ onNavigate, setUserMode, lang, onSetLa
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono tracking-wider uppercase text-white/50 mb-1.5">{trans('nomorTelepon', lang)}</label>
+                <label className="block text-xs font-mono tracking-wider uppercase text-[#C5FF00] font-bold mb-1.5">
+                  {lang === 'id' ? 'NOMOR WHATSAPP (AKTIF)' : 'WHATSAPP NUMBER (ACTIVE)'}
+                </label>
                 <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C5FF00]" />
                   <input
                     type="tel"
-                    placeholder="081398765432"
+                    placeholder="Contoh: 085326610836"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     className="w-full bg-black/60 border border-white/10 focus:border-[#C5FF00] rounded-none py-3.5 pl-12 pr-4 text-sm font-medium text-white placeholder-white/20 outline-none transition-all"

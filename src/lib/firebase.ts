@@ -448,3 +448,33 @@ export async function deleteAlert(id: string) {
   }
 }
 
+/**
+ * Real-time listener for all user accounts
+ */
+export function listenToAccounts(onChange: (accounts: Account[]) => void) {
+  const ref = collection(db, 'accounts');
+  return onSnapshot(
+    ref,
+    (snapshot) => {
+      const items: Account[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        items.push({
+          email: data.email || docSnap.id,
+          name: data.name || '',
+          role: data.role as 'customer' | 'partner' | 'admin',
+          phoneNumber: data.phoneNumber || '',
+          city: data.city || '',
+          plateNumber: data.plateNumber || '',
+          truckType: data.truckType || ''
+        });
+      });
+      onChange(items);
+    },
+    (error) => {
+      handleFirestoreError(error, OperationType.GET, 'accounts');
+    }
+  );
+}
+
+

@@ -23,7 +23,8 @@ import {
   deleteBooking,
   listenToAlerts,
   addNewAlert,
-  deleteAlert
+  deleteAlert,
+  listenToAccounts
 } from './lib/firebase';
 
 export default function App() {
@@ -45,6 +46,8 @@ export default function App() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   // Coordinated real-time alerts state for driver announcements
   const [alerts, setAlerts] = useState<SystemAlert[]>([]);
+  // Synced partner accounts list
+  const [accounts, setAccounts] = useState<Account[]>([]);
 
   // Synchronize with Firebase
   useEffect(() => {
@@ -65,9 +68,17 @@ export default function App() {
       }
     });
 
+    // 4. Unsubscribe handle for live snapshot events of system user accounts
+    const unsubscribeAccounts = listenToAccounts((liveAccounts) => {
+      if (liveAccounts) {
+        setAccounts(liveAccounts);
+      }
+    });
+
     return () => {
       unsubscribeBookings();
       unsubscribeAlerts();
+      unsubscribeAccounts();
     };
   }, []);
 
@@ -194,6 +205,7 @@ export default function App() {
             onNavigate={navigateTo}
             lang={lang}
             onSetLang={handleSetLang}
+            accounts={accounts}
           />
         );
       
