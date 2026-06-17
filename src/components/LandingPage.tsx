@@ -12,7 +12,8 @@ import {
   TrendingUp, 
   Truck, 
   Lock, 
-  Compass
+  Compass,
+  Download
 } from 'lucide-react';
 import { AppView } from '../types';
 import { Language, trans } from '../lib/translations';
@@ -55,6 +56,21 @@ export default function LandingPage({ onNavigate, lang, onSetLang }: LandingPage
           </div>
 
           <div className="flex items-center gap-4">
+            <button 
+              onClick={() => {
+                if (typeof (window as any).triggerTrukInPwaInstall === 'function') {
+                  (window as any).triggerTrukInPwaInstall();
+                } else {
+                  console.warn('[PWA] Trigger not loaded yet');
+                }
+              }}
+              className="flex items-center gap-1.5 border border-[#C5FF00] bg-[#C5FF00]/5 hover:bg-[#C5FF00] hover:text-black text-[#C5FF00] px-3.5 py-2 rounded-none font-black text-xs uppercase tracking-widest transition-all cursor-pointer"
+              title={lang === 'id' ? 'Pasang Aplikasi TrukIn PWA' : 'Install TrukIn PWA App'}
+            >
+              <Download className="w-3.5 h-3.5 animate-bounce" />
+              <span className="text-[10px] font-mono">{lang === 'id' ? 'PASANG APLIKASI' : 'INSTALL APP'}</span>
+            </button>
+
             <LanguageSwitcher currentLang={lang} onSetLang={onSetLang} />
             
             <button 

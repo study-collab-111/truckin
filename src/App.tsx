@@ -14,6 +14,7 @@ import RegisterPartner from './components/RegisterPartner';
 import DashboardCustomer from './components/DashboardCustomer';
 import DashboardPartner from './components/DashboardPartner';
 import DashboardAdmin from './components/DashboardAdmin';
+import PwaInstallBanner from './components/PwaInstallBanner';
 import { 
   listenToBookings, 
   initializeDummyDataIfEmpty, 
@@ -248,6 +249,7 @@ export default function App() {
   return (
     <div className="selection:bg-[#C5FF00]/40 selection:text-black">
       {renderActiveView()}
+      <PwaInstallBanner lang={lang} />
     </div>
   );
 }
